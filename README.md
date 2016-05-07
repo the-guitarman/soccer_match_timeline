@@ -2,3 +2,10 @@
 
 # soccer_match_timeline
 
+A vertical timeline creator to display events of a soccer match with HTML/CSS/JavaScript.
+
+### TODOs
+
+- [ ] calculate current minute based on kick-off time
+- [ ] show score at goal/penalty event
+- [ ] show team names

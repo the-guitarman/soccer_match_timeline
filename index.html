@@ -541,7 +541,7 @@
                  ) {
                 matchEventButtons.filter('[data-match-event=half-time-break]').removeProp('disabled');
               } else if (
-                  (indexes.kickOffIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 1 && indexes.finalWhistleIndexes.length === 0)
+                  (indexes.kickOffIndexes.length === 2 && indexes.halfTimeBreakIndexes.length === 1 && indexes.finalWhistleIndexes.length === 0)
                  ) {
                 matchEventButtons.filter('[data-match-event=final-whistle]').removeProp('disabled');
               }
@@ -601,7 +601,7 @@
               var currentMinute = calculateMinute(allMatchEvents, type);
               var events = {
                 'kick-off': {"type":"kick-off","event":"Kick-Off","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"},
-                'final-whistle': {"type":"kick-off","event":"Final Whistle","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
+                'final-whistle': {"type":"final-whistle","event":"Final Whistle","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
 
                 'half-time-break': {"type":"half-time-break","event":"Pause","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
 
