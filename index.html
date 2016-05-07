@@ -1,0 +1,734 @@
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Soccer Match Timeline</title>
+    <link rel="stylesheet" href="lib/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/timeline.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  </head>
+  <body>
+    <div class="container">
+      <div class="row js-match-event-buttons css-match-event-buttons">
+
+        <div class="col-xs-12 text-center">
+          <div class="btn-group" role="group" aria-label="time line controls">
+            <button type="button" class="btn btn-default with-example" data-match-event="kick-off">Kick-Off</button>
+            <button type="button" class="btn btn-default with-example" data-match-event="half-time-break" data-match-event-position="top" disabled="disabled">Half-Time-Break</button>
+            <button type="button" class="btn btn-default with-example" data-match-event="break" data-match-event-position="top" disabled="disabled">Break<br /><small>(e.g. Wether)</small></button>
+            <button type="button" class="btn btn-default with-example" data-match-event="final-whistle" data-match-event-position="bottom" disabled="disabled">Final Whistle</button>
+          </div>
+          <div class="btn-group js-deciding-game-buttons hidden" role="group" aria-label="time line controls">
+            <!--<button type="button" class="btn btn-default" data-match-event="extra-time" data-match-event-position="bottom" disabled="disabled">Extra-Time</button>-->
+            <button type="button" class="btn btn-default" data-match-event="penalty-shoot-out" data-match-event-position="top" disabled="disabled">Penalty Shoot-Out</button>
+          </div>
+        </div>
+
+        <div class="col-xs-6 text-center">
+          <div class="btn-group" role="group" aria-label="time line controls">
+            <button type="button" class="btn btn-default" data-match-event="goal" data-match-event-position="left" disabled="disabled">Goal</button>
+            <button type="button" class="btn btn-default" data-match-event="penalty" data-match-event-position="left" disabled="disabled">Penalty</button>
+          </div>
+          <div class="btn-group" role="group" aria-label="time line controls">
+            <button type="button" class="btn btn-default" data-match-event="foul-yellow" data-match-event-position="left" disabled="disabled"><span class="foul-card yellow"></button>
+            <button type="button" class="btn btn-default" data-match-event="foul-yellow-red" data-match-event-position="left" disabled="disabled"><span class="foul-card yellow"><span class="foul-card red"></button>
+            <button type="button" class="btn btn-default" data-match-event="foul-red" data-match-event-position="left" disabled="disabled"><span class="foul-card red"></button>
+          </div>
+        </div>
+
+        <div class="col-xs-6 text-center">
+          <div class="btn-group" role="group" aria-label="time line controls">
+            <button type="button" class="btn btn-default" data-match-event="goal" data-match-event-position="right" disabled="disabled">Goal</button>
+            <button type="button" class="btn btn-default" data-match-event="penalty" data-match-event-position="right" disabled="disabled">Penalty</button>
+          </div>
+          <div class="btn-group" role="group" aria-label="time line controls">
+            <button type="button" class="btn btn-default" data-match-event="foul-yellow" data-match-event-position="right" disabled="disabled"><span class="foul-card yellow"></button>
+            <button type="button" class="btn btn-default" data-match-event="foul-yellow-red" data-match-event-position="right" disabled="disabled"><span class="foul-card yellow"><span class="foul-card red"></button>
+            <button type="button" class="btn btn-default" data-match-event="foul-red" data-match-event-position="right" disabled="disabled"><span class="foul-card red"></button>
+          </div>
+        </div>
+        
+      </div>
+      <div class="row js-match-event-form hidden">
+        <div class="hidden-xs col-sm-3 col-md-4"></div>
+        <div class="col-xs-12 col-sm-6 col-md-4">
+          <input type="hidden" name="type" />
+          <input type="hidden" name="position" />
+          <input type="hidden" name="datetime" />
+          <div class="form-group hidden">
+            <label for="input-minute">Minute</label> 
+            <input type="tel" id="input-minute" class="form-control" name="minute" placeholder="e.g. 26" />
+          </div>
+          <div class="form-group hidden">
+            <label for="input-minute">Event</label> 
+            <input type="text" class="form-control" name="event" placeholder="e.g. Karl Heinz (4)" />
+          </div>
+          <div class="form-group hidden">
+            <label for="input-minute">Text</label> 
+            <input type="text" class="form-control" name="text" placeholder="e.g. Karl Heinz (4)" />
+          </div>
+          <div>
+            <input type="submit" class="btn btn-primary" value="Save" />
+            <input type="reset" class="btn btn-danger" value="Stop" />
+          </div>
+        </div>
+        <div class="hidden-xs col-sm-3 col-md-4"></div>
+      </div>
+      <div class="cntl js-match-events" data-match-events="[
+        {&quot;type&quot;:&quot;kick-off&quot;,&quot;event&quot;:&quot;Kick-Off&quot;,&quot;text&quot;:&quot;12:30 am&quot;,&quot;minute&quot;:&quot;0&quot;,&quot;position&quot;:&quot;bottom&quot;,&quot;datetime&quot;:&quot;2016-04-03T12:32:51.232Z&quot;},
+        {&quot;type&quot;:&quot;goal&quot;,&quot;text&quot;:&quot;0:1 Steve A. (4)&quot;,&quot;minute&quot;:&quot;26&quot;,&quot;position&quot;:&quot;left&quot;,&quot;datetime&quot;:&quot;2016-04-03T12:58:51.232Z&quot;},
+        {&quot;type&quot;:&quot;half-time-break&quot;,&quot;event&quot;:&quot;Half-Time-Break&quot;,&quot;text&quot;:&quot;1:16 pm&quot;,&quot;minute&quot;:&quot;46&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:18:51.232Z&quot;},
+
+        {&quot;type&quot;:&quot;kick-off&quot;,&quot;event&quot;:&quot;Kick-Off&quot;,&quot;text&quot;:&quot;1:32 pm&quot;,&quot;minute&quot;:&quot;45&quot;,&quot;position&quot;:&quot;bottom&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:32:51.232Z&quot;},
+        {&quot;type&quot;:&quot;foul-yellow&quot;,&quot;text&quot;:&quot;Steve A. (4)&quot;,&quot;minute&quot;:&quot;47&quot;,&quot;position&quot;:&quot;right&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:34:51.232Z&quot;},
+        {&quot;type&quot;:&quot;foul-yellow&quot;,&quot;text&quot;:&quot;Bob W. (10)&quot;,&quot;minute&quot;:&quot;48&quot;,&quot;position&quot;:&quot;left&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:35:51.232Z&quot;},
+        {&quot;type&quot;:&quot;foul-yellow-red&quot;,&quot;text&quot;:&quot;Steve A. (4)&quot;,&quot;minute&quot;:&quot;50&quot;,&quot;position&quot;:&quot;right&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:37:51.232Z&quot;},
+        {&quot;type&quot;:&quot;foul-red&quot;,&quot;text&quot;:&quot;Bob Carter(8)&quot;,&quot;minute&quot;:&quot;60&quot;,&quot;position&quot;:&quot;left&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:47:51.232Z&quot;},
+        {&quot;type&quot;:&quot;final-whistle&quot;,&quot;event&quot;:&quot;Final Whistle&quot;,&quot;text&quot;:&quot;2:19 pm&quot;,&quot;minute&quot;:&quot;93&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T14:20:51.232Z&quot;}
+      ]" data-match-character="deciding-game" data-match-event-type-translations="{
+        &quot;goal&quot;:&quot;Goal&quot;,
+        &quot;penalty&quot;:&quot;Penalty&quot;
+      }">
+        <span class="timeline-bar timeline-center"> 
+          <span class="timeline-bar-fill"></span>
+        </span>
+        <div class="timeline-states js-match-events-timeline">
+
+          <div class="timeline-state position-top">
+            <div class="timeline-content">
+              <p><strong>Final Whistle</strong><br />1:16 pm</p>
+            </div>
+            <div class="timeline-icon timeline-center">'90+3</div>
+          </div>
+
+          <div style="height: 43px;"></div>
+
+          <div class="timeline-state position-right">
+            <div class="timeline-content">
+              <p><span class="foul-card yellow"></span><span class="foul-card red"></span>Steve A. (4)</p>
+            </div>
+            <div class="timeline-icon timeline-center">'50</div>
+          </div>
+
+          <div style="height: 2px;"></div>
+
+          <div class="timeline-state position-left">
+            <div class="timeline-content">
+              <p></span>Bob W. (10)<span class="foul-card yellow"></p>
+            </div>
+            <div class="timeline-icon timeline-center">'48</div>
+          </div>
+
+          <div style="height: 1px;"></div>
+
+          <div class="timeline-state position-right">
+            <div class="timeline-content">
+              <p><span class="foul-card yellow"></span>Steve A. (4)</p>
+            </div>
+            <div class="timeline-icon timeline-center">'47</div>
+          </div>
+
+          <div style="height: 2px;"></div>
+
+          <div class="timeline-state position-bottom half-time-break">
+            <div class="timeline-icon timeline-center">'45</div>
+            <div class="timeline-content" style="padding-bottom: 50px;">
+              <p><strong>Kick-Off</strong><br />1:32 pm</p>
+            </div>
+          </div>
+
+          <div class="timeline-state position-top half-time-break">
+            <div class="timeline-content">
+              <p><strong>Half-Time-Break</strong><br />1:16 pm</p>
+            </div>
+            <div class="timeline-icon timeline-center">'45+1</div>
+          </div>
+
+          <div style="height: 20px;"></div>
+
+          <div class="timeline-state position-right">
+            <div class="timeline-content">
+              <p><img src="images/timeline/soccer_ball_24x24.png" alt="" /> 0:1 Steve A. (4)</p>
+            </div>
+            <div class="timeline-icon timeline-center">'26</div>
+          </div>
+
+          <div style="height: 26px;"></div>
+          
+          <div class="timeline-state position-bottom">
+            <div class="timeline-icon timeline-center">'0</div>
+            <div class="timeline-content">
+              <p><strong>Kick-Off</strong><br />12:30 am</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <script src="lib/extensions.js"></script>
+      <script src="lib/jquery-1.11.1.min.js"></script>
+      <script src="lib/underscore-1.8.3.min.js"></script>
+      <script src="lib/moment-with-locales-2.13.0.min.js"></script>
+      <script>
+        $(document).ready(function() {
+          moment.locale('de');
+
+          _.mixin({
+            "eachSlice": function(obj, size, iterator, context) {
+              for (var i=0, l=obj.length; i < l; i+=size) {
+                iterator.call(context, obj.slice(i,i+size), i, obj);
+              } 
+            }
+          });
+
+          var matchStateMethods = {
+            finalEventIndexes: function(allMatchEvents) {
+              var kickOffIndexes       = [];
+              var halfTimeBreakIndexes = [];
+              var finalWhistleIndexes  = [];
+
+              $.each(allMatchEvents, function(index, matchEvent) {
+                if (matchEvent.type === 'kick-off') {
+                  kickOffIndexes.push(index);
+                } else if (matchEvent.type === 'half-time-break') {
+                  halfTimeBreakIndexes.push(index);
+                } else if (matchEvent.type === 'final-whistle') {
+                  finalWhistleIndexes.push(index);
+                }
+              });
+
+              return {
+                kickOffIndexes: kickOffIndexes, 
+                halfTimeBreakIndexes: halfTimeBreakIndexes,
+                finalWhistleIndexes: finalWhistleIndexes
+              };
+            },
+
+            halfTimeNumber: function(allMatchEvents) {
+              var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
+
+              var ret = 1;
+              if (indexes.kickOffIndexes.length > 0) {
+                if (indexes.halfTimeBreakIndexes.length > 0) {
+                  if (indexes.finalWhistleIndexes.length > 0) {
+                    if (indexes.finalWhistleIndexes.length === 2) {
+                      ret = 5;
+                    } else if (indexes.finalWhistleIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 2) {
+                      ret = 4;
+                    } else if (indexes.finalWhistleIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 1) {
+                      ret = 3;
+                    }
+                  } else {
+                    ret = 2;
+                  }
+                }
+              }
+              return ret;
+            },
+
+            halfTimeStartMinute: function(halfTimeNumber) {
+              var h = {1:0, 2:45, 3:90, 4:105};
+              return h[halfTimeNumber];
+            },
+
+            halfTimeMinutes: function(halfTimeNumber) {
+              var h = {1:45, 2:45, 3:15, 4:15};
+              return h[halfTimeNumber];
+            }
+          };
+
+
+
+
+          var matchEventCreator = (function(){
+            var minute = function(matchEvent) {
+              var minute = parseInt(matchEvent.minute);
+              var lastMinute = 
+                matchStateMethods.halfTimeStartMinute(matchEvent.halfTime) + 
+                matchStateMethods.halfTimeMinutes(matchEvent.halfTime);
+
+              if (matchEvent.minute > lastMinute) {
+                minute = lastMinute + "+" + (matchEvent.minute - lastMinute);
+              }
+              return '<div class="timeline-icon timeline-center">\'' + minute + '</div>';
+            };
+
+            var concatText = function(text1, text2, matchEventType) {
+              var ret = text1 + ' ' + text2;
+              if (['goal', 'penalty'].indexOf(matchEventType) > -1) {
+                ret = text1 + ', ' + text2;
+              }
+              return ret;
+            };
+
+            var contentAlignment = function(html, matchEvent) {
+              if (matchEvent.position === 'left') {
+                if (matchEvent.text.trim() != '') {
+                  html = concatText(matchEvent.text, html, matchEvent.type);
+                }
+              } else if (matchEvent.position === 'right') {
+                if (matchEvent.text.trim() != '') {
+                  html = concatText(html, matchEvent.text, matchEvent.type);
+                }
+              } else {
+                html = '<strong>' + matchEvent.event + '</strong><br />' + matchEvent.text;
+              }
+              return html;
+            };
+
+            var foulHTML = function(matchEventType) {
+              var ret = '';
+              if (matchEventType === 'foul-yellow') {
+                ret = '<span class="foul-card yellow"></span>';
+              } else if (matchEventType === 'foul-red') {
+                ret = '<span class="foul-card red"></span>';
+              } else if (matchEventType === 'foul-yellow-red') {
+                ret = foulHTML('foul-yellow') + foulHTML('foul-red');
+              }
+              return ret;
+            };
+
+            var content = function(matchEvent) {
+              var html = '<p>';
+              if (['goal', 'penalty'].indexOf(matchEvent.type) > -1) {
+                var soccerBallImage = '<img src="images/timeline/soccer_ball_24x24.png" alt="" />';
+                var text = soccerBallImage + ' ' + matchEvent.typeTranslation;
+                if (matchEvent.position === 'left') {
+                  text = matchEvent.typeTranslation + ' ' + soccerBallImage;
+                }
+                html = html + contentAlignment(text, matchEvent);
+              } else if (_.contains(['foul-yellow', 'foul-yellow-red', 'foul-red'], matchEvent.type)) {
+                html = html + contentAlignment(foulHTML(matchEvent.type), matchEvent);
+              } else {
+                html = html + '<strong>' + matchEvent.event + '</strong><br />' + matchEvent.text;
+              }
+              return html + '</p>';
+            }
+
+            var contentCt = function(matchEvent) {
+              var html = '';
+              if (matchEvent.type != "timeline+minute") {
+                html = '<div class="timeline-content">' + content(matchEvent) + '</div>';
+              }
+              return html;
+            };
+
+            var point = function(matchEvent) {
+              var html = '<div class="timeline-state position-' + matchEvent.position + '">';
+              if (matchEvent.eventIndex >= matchEvent.lastEventIndex) {
+                html = html +
+                  '<div class="css-close-button-wrap text-right">' + 
+                    '<button type="button" class="close" aria-label="Close" data-event-index="' + matchEvent.eventIndex + '" title="Delete Latest Event">' + 
+                      '<span aria-hidden="true">&times;</span>' +
+                    '</button>' +
+                  '</div>';
+              }
+              if (matchEvent.position === 'bottom') {
+                html = html + minute(matchEvent) + contentCt(matchEvent);
+              } else {
+                html = html + contentCt(matchEvent) + minute(matchEvent);
+              }
+              return html + '</div>';
+            };
+
+            var timeline = function(matchEvent) {
+              return '<div style="height: ' + matchEvent.eventHeight + 'px;"></div>';
+            };
+
+            var init = function(matchEvent) {
+              if (matchEvent.type === 'timeline') {
+                return timeline(matchEvent);
+              } else if (matchEvent.type === 'timeline+minute') {
+                return point(matchEvent) + timeline(matchEvent);
+              } else {
+                return point(matchEvent);
+              }
+            };
+
+            return {init: init};
+          })();
+
+
+
+
+          var matchEventsRenderer = (function() {
+            var matchEventsEl = $('.js-match-events');
+            var matchEventTypeTranslations = matchEventsEl.data('match-event-type-translations');
+
+            var matchEvents = function() {
+              return matchEventsEl.data('match-events') || [];
+            };
+
+            var prependToTimeline = function(matchEvent) {
+              var html = matchEventCreator.init(matchEvent);
+              matchEventsEl.find('.timeline-states').prepend(html);
+            };
+  /*
+            function htmlEncode(value){
+              return $('<div/>').text(value).html();
+            }
+
+            function htmlDecode(value){
+              return $('<div/>').html(value).text();
+            }
+  */
+            var differenceMinutes = function(lastMinute, currentMinute) {
+              return parseInt(currentMinute) - parseInt(lastMinute);
+            };
+
+            var eventHeight = function(minutes) {
+              return parseInt(minutes); // * 2;
+            };
+
+            var halfTime = function(allMatchEvents, matchEventIndex, matchEvent) {
+              var indexes = [];
+              $.each(allMatchEvents, function(index, aMatchEvent) {
+                if (['kick-off', 'half-time-break', 'final-whistle'].indexOf(aMatchEvent.type) > -1) {
+                  indexes.push(index);
+                }
+              });
+
+              var slices = [];
+              _.eachSlice(indexes, 2, function(slice) {
+                slices.push(slice);
+              });
+
+              var ret = 1;
+              for (var i = 0; i < slices.length; i++) {
+                var slice = slices[i];
+                if (
+                    (slice.length === 2 && slice[0] <= matchEventIndex && slice[1] >= matchEventIndex) ||
+                    (slice.length === 1 && slice[0] <= matchEventIndex)
+                   ) {
+                  ret = i + 1;
+                  break;
+                }
+              }
+              return ret;
+            };
+
+            var addEventAttributes = function(eventIndex, lastMinute, matchEvent, allMatchEvents) {
+              matchEvent.eventIndex      = eventIndex;
+              matchEvent.lastEventIndex  = allMatchEvents.length - 1;
+              matchEvent.eventHeight     = eventHeight(differenceMinutes(lastMinute, matchEvent.minute));
+              matchEvent.halfTime        = halfTime(allMatchEvents, eventIndex, matchEvent);
+              matchEvent.typeTranslation = matchEventTypeTranslations[matchEvent.type];
+              return matchEvent;
+            };
+
+            var timelineEvent = function(withMinute, lastMinute, minute) {
+              var type = 'timeline';
+              if (_.isEmpty(withMinute) === false && withMinute === true) {
+                type = type + '+minute';
+              }
+              return {type:type, minute:minute, eventHeight:eventHeight(differenceMinutes(lastMinute, minute))};
+            };
+
+            var init = function() {
+              $('.timeline-states').html('');
+
+              var lastMinute = 0;
+              var allMatchEvents = matchEvents();
+              $.each(allMatchEvents, function(index, matchEvent) {
+                matchEvent = addEventAttributes(index, lastMinute, matchEvent, allMatchEvents);
+                if (index > 0) {
+                  prependToTimeline(timelineEvent(false, lastMinute, matchEvent.minute));
+                }
+                prependToTimeline(matchEvent);
+                lastMinute = matchEvent.minute;
+                /*
+                var lastEvent = (index === allMatchEvents.length - 1);
+                if (lastEvent === true) {
+                  prependToTimeline(timelineEvent(true));
+                }
+                */
+              });
+
+              /*
+              lastMinute = 0;
+              console.log(allMatchEvents.length);
+              for(var i = 0; i < 16; i++) {
+                matchEvent = allMatchEvents[i];
+                matchEvent = addEventAttributes(i, lastMinute, matchEvent, allMatchEvents);
+                lastMinute = matchEvent.minute;
+                prependToTimeline(matchEvent);
+              }
+              */
+            };
+
+            return {
+              matchEventsEl: matchEventsEl,
+              init: init
+            };
+          })();
+
+          matchEventsRenderer.matchEventsEl.data('match-events', []);
+          matchEventsRenderer.init();
+
+
+
+
+          var matchEventButtonHandler = (function(matchEventsEl) {
+            var matchEventButtons      = $('.js-match-event-buttons button');
+            var matchEventFormSelector = '.js-match-event-form'
+            var matchEventFormEl       = $(matchEventFormSelector);
+            var requiredFields         = {
+              'goal':              ['type', 'minute', 'datetime', 'position', 'text'],
+              'penalty':           ['type', 'minute', 'datetime', 'position', 'text'],
+              'foul-yellow':      ['type', 'minute', 'datetime', 'position', 'text'],
+              'foul-yellow-red':   ['type', 'minute', 'datetime', 'position', 'text'],
+              'foul-red':          ['type', 'minute', 'datetime', 'position', 'text'],
+              'kick-off':          ['type', 'minute', 'datetime', 'position', 'text', 'event'],
+              'half-time-break':   ['type', 'minute', 'datetime', 'position', 'text', 'event'],
+              'final-whistle':     ['type', 'minute', 'datetime', 'position', 'text', 'event']//,
+              /*
+              'penalty':           ['type', 'minute', 'position', 'text', 'event'],
+              'penalty-shoot-out': ['type', 'minute', 'position', 'text', 'event']
+              */
+            };
+
+            var hideEventForm = function() {
+              matchEventFormEl.slideUp('fast', function() {
+                $(this).removeClass('hidden');
+              });
+            };
+
+            var showEventForm = function(type, position, currentMinute) {
+              matchEventFormEl.find('input[name=type]').val(type);
+              matchEventFormEl.find('input[name=position]').val(position);
+              matchEventFormEl.find('input[name=minute]').val(currentMinute);
+              matchEventFormEl.find('input[name=datetime]').val(moment().toISOString());
+              matchEventFormEl.find('.form-group').removeClass('has-error');
+              $.each(requiredFields[type], function(index, field) {
+                matchEventFormEl.find('input[name=' + field + ']').parent().removeClass('hidden');
+              });
+              matchEventFormEl.hide().removeClass('hidden').slideDown('fast', function() {
+                matchEventFormEl.find('input:visible').each(function() {
+                  var self = $(this);
+                  if (self.val().trim() === '') {
+                    self.focus();
+                    return false;
+                  }
+                });
+              });
+            };
+
+            var enableDecidingEventButtons = function(indexes, decidingGame, lastMatchEvent) {
+              if (decidingGame === true) {
+                if (indexes.finalWhistleIndexes.length === 2) {
+                  matchEventButtons.filter('[data-match-event=penalty-shoot-out]').removeProp('disabled');
+                  matchEventButtons.filter('[data-match-event=penalty]').removeProp('disabled');
+                } else if (
+                    (indexes.kickOffIndexes.length === 2 && indexes.finalWhistleIndexes.length === 1 && lastMatchEvent.type === 'final-whistle') ||
+                    (indexes.kickOffIndexes.length === 3 && indexes.halfTimeBreakIndexes.length === 2 && lastMatchEvent.type === 'half-time-break')
+                  ) {
+                  matchEventButtons.filter('[data-match-event=kick-off]').removeProp('disabled');
+                } else if (indexes.kickOffIndexes.length === 3 && indexes.halfTimeBreakIndexes.length === 1 && indexes.finalWhistleIndexes.length === 1) {
+                  matchEventButtons.filter('[data-match-event=half-time-break]').removeProp('disabled');
+                } else if (indexes.kickOffIndexes.length === 4 && indexes.halfTimeBreakIndexes.length === 2 && indexes.finalWhistleIndexes.length === 1) {
+                  matchEventButtons.filter('[data-match-event=final-whistle]').removeProp('disabled');
+                }
+              }
+            };
+
+            var enableStartEndEventButtons = function(indexes, lastMatchEvent) {
+              if (
+                  (indexes.kickOffIndexes.length === 0) ||
+                  (indexes.kickOffIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 1 && lastMatchEvent.type === 'half-time-break')
+                 ) {
+                matchEventButtons.filter('[data-match-event=kick-off]').removeProp('disabled');
+              } else if (
+                  (indexes.kickOffIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 0 && indexes.finalWhistleIndexes.length === 0)
+                 ) {
+                matchEventButtons.filter('[data-match-event=half-time-break]').removeProp('disabled');
+              } else if (
+                  (indexes.kickOffIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 1 && indexes.finalWhistleIndexes.length === 0)
+                 ) {
+                matchEventButtons.filter('[data-match-event=final-whistle]').removeProp('disabled');
+              }
+            };
+
+            var enableMatchEventButtons = function(indexes) {
+              if (
+                  (indexes.kickOffIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 0) || 
+                  (indexes.kickOffIndexes.length === 2 && indexes.finalWhistleIndexes.length === 0)  || 
+                  (indexes.kickOffIndexes.length === 3 && indexes.halfTimeBreakIndexes.length === 1) || 
+                  (indexes.kickOffIndexes.length === 4 && indexes.finalWhistleIndexes.length === 1)
+                 ) {
+                matchEventButtons.filter('[data-match-event=break]').removeProp('disabled');
+                matchEventButtons.filter('[data-match-event=goal]').removeProp('disabled');
+                matchEventButtons.filter('[data-match-event=penalty]').removeProp('disabled');
+                matchEventButtons.filter('[data-match-event=foul-yellow]').removeProp('disabled');
+                matchEventButtons.filter('[data-match-event=foul-yellow-red]').removeProp('disabled');
+                matchEventButtons.filter('[data-match-event=foul-red]').removeProp('disabled');
+              }
+            };
+
+            var buttonSwitcher = function(allMatchEvents, decidingGame) {
+              var lastMatchEvent = allMatchEvents[(allMatchEvents.length - 1)];
+              var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
+
+              matchEventButtons.prop('disabled', 'disabled');
+
+              //matchEventButtons.filter(':not([data-match-event=kick-off])').removeProp('disabled');
+              enableDecidingEventButtons(indexes, decidingGame, lastMatchEvent);
+              enableStartEndEventButtons(indexes, lastMatchEvent);
+              enableMatchEventButtons(indexes);
+            };
+
+            var detectDecidingGame = function(matchEventsEl) {
+              return matchEventsEl.data('match-character') === 'deciding-game';
+            };
+
+            var switchDecidingGameButtonsVisibility = function(decidingGame) {
+              var decidingGameButtonsParent = $('.js-deciding-game-buttons');
+              if (decidingGame === true) {
+                decidingGameButtonsParent.removeClass('hidden');
+              } else {
+                decidingGameButtonsParent.addClass('hidden');
+              }
+            };
+
+            var calculateMinute = function(allMatchEvents, type) {
+              ret = 0;
+              if (allMatchEvents.length > 0) {
+                //matchStateMethods.halfTimeNumber
+                ret = moment().diff(allMatchEvents[0].datetime, 'minutes');
+              }
+              return ret;
+            };
+
+            var addEventOrShowEventForm = function(allMatchEvents, type, position) {
+              var currentMinute = calculateMinute(allMatchEvents, type);
+              var events = {
+                'kick-off': {"type":"kick-off","event":"Kick-Off","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"},
+                'final-whistle': {"type":"kick-off","event":"Final Whistle","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
+
+                'half-time-break': {"type":"half-time-break","event":"Pause","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
+
+                'goal': showEventForm, 
+                'penalty': showEventForm, 
+                'foul-yellow': showEventForm, 
+                'foul-yellow-red': showEventForm, 
+                'foul-red': showEventForm
+              };
+              var ret = events[type];
+              if (typeof(ret) === 'object') {
+                allMatchEvents.push(ret);
+              } else if (typeof(ret) === 'function') {
+                ret(type, position, currentMinute);
+              }
+              return allMatchEvents;
+            };
+
+            var submitMatchEvent = function(type) {
+              type = 'goal';
+
+              if (['kick-off', 'half-time-break', 'final-whistle'].indexOf(type) > -1) {
+                matchEventFormEl.find('input[name=event]').parent().removeClass('hidden');
+              }
+
+              var ret = {};
+              $.each(requiredFields[type], function(index, field) {
+                var fieldEl = matchEventFormEl.find('input[name=' + field + ']');
+                ret[field] = fieldEl.val();
+                if (ret[field].trim() === '' && ['tel', 'text'].indexOf(fieldEl.prop('type')) > -1) {
+                  fieldEl.parent().addClass('has-error');
+                }
+              });
+
+              if (_.any(ret, function(value, key) {return value.trim() === '';})) {
+                ret = false;
+              }
+
+              /*
+              {"type":"kick-off",        "minute":"0", "position":"bottom",  "text":"12:30 am", "event":"Kick-Off"},
+              {"type":"timeline",        "minute":"26"},
+              {"type":"goal",            "minute":"26", "position":"left",   "text":"0:1 Karl-Heinz (4)"},
+              {"type":"timeline",        "minute":"46"},
+              {"type":"half-time-break", "minute":"46", "position":"top",    "text":"1:16 pm",  "event":"Pause"},
+              {"type":"kick-off",        "minute":"45", "position":"bottom", "text":"1:32 pm",  "event":"Kick-Off"},
+              {"type":"timeline",        "minute":"47"},
+              {"type":"foul-yellow",     "minute":"47", "position":"right",  "text":"Karl-Heinz (4)"},
+              {"type":"timeline",        "minute":"48"},
+              {"type":"foul-yellow",     "minute":"48", "position":"left",   "text":"Hans-Joachim (10)"},
+              {"type":"timeline",        "minute":"50"},
+              {"type":"foul-yellow-red", "minute":"50", "position":"right",  "text":"Karl-Heinz (4)"},
+              {"type":"timeline",        "minute":"60"},
+              {"type":"foul-red",        "minute":"60", "position":"left",   "text":"Bob Carter(8)"},
+              {"type":"timeline",        "minute":"93"},
+              {"type":"final-whistle",   "minute":"93", "position":"top",    "text":"1:16 pm",  "event":"Final Whistle"}
+
+              Kick-Off                   <integer>       top                 <string>           <string>
+              timeline                                   bottom
+              goal                                       left
+              half-time-break                            right
+              foul-yellow
+              foul-yellow-red
+              foul-red
+              final-whistle
+
+              penalty
+              penalty-shoot-out
+              */
+
+              return ret;
+            };
+
+            var init = function() {
+              var decidingGame = detectDecidingGame(matchEventsEl);
+              switchDecidingGameButtonsVisibility(decidingGame);
+
+              // match event button event
+              matchEventButtons.click(function() {
+                var button = $(this);
+                var matchEvents = matchEventsEl.data('match-events') || [];
+                var newMatchEvents = addEventOrShowEventForm(matchEvents, button.data('match-event'), button.data('match-event-position'));
+                matchEventsEl.data('match-events', newMatchEvents);
+                matchEventsRenderer.init();
+                buttonSwitcher(newMatchEvents, decidingGame);
+              });
+
+              // close button event to delete the last match event
+              $(document).on('click', '.js-match-events-timeline button.close', function() {
+                var matchEvents = matchEventsEl.data('match-events') || [];
+                matchEvents.splice(parseInt($(this).data('event-index')), 1);
+                matchEventsEl.data('match-events', matchEvents);
+                matchEventsRenderer.init();
+                buttonSwitcher(matchEvents, decidingGame);
+              });
+
+
+
+
+              // match event form reset event
+              $(document).on('click', matchEventFormSelector + ' input[type=reset]', function(e) {
+                e.preventDefault();
+                hideEventForm();
+                return false;
+              });
+
+              // match event form submit event
+              $(document).on('click', matchEventFormSelector + ' input[type=submit]', function(e) {
+                e.preventDefault();
+                var eventOrFalse = submitMatchEvent();
+                if (eventOrFalse != false) {
+                  var matchEvents = matchEventsEl.data('match-events') || [];
+                  matchEvents.push(eventOrFalse);
+                  matchEventsEl.data('match-events', matchEvents);
+                  matchEventsRenderer.init();
+                  buttonSwitcher(matchEvents, decidingGame);
+                  hideEventForm();
+                }
+                return false;
+              });
+            };
+
+            return {init: init};
+          })(matchEventsRenderer.matchEventsEl);
+
+          matchEventButtonHandler.init();
+        });
+      </script>
+    </div>
+  </body>
+  </html>
