@@ -6,6 +6,9 @@
     <link rel="stylesheet" type="text/css" href="lib/timeline.css">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <style type="text/css">
+      body {padding: 20px 0px;}
+    </style>
   </head>
   <body>
     <div class="container">
@@ -76,7 +79,7 @@
       </div>
       <div class="cntl js-match-events" data-match-events="[
         {&quot;type&quot;:&quot;kick-off&quot;,&quot;event&quot;:&quot;Kick-Off&quot;,&quot;text&quot;:&quot;12:30 am&quot;,&quot;minute&quot;:&quot;0&quot;,&quot;position&quot;:&quot;bottom&quot;,&quot;datetime&quot;:&quot;2016-04-03T12:32:51.232Z&quot;},
-        {&quot;type&quot;:&quot;goal&quot;,&quot;text&quot;:&quot;0:1 Steve A. (4)&quot;,&quot;minute&quot;:&quot;26&quot;,&quot;position&quot;:&quot;left&quot;,&quot;datetime&quot;:&quot;2016-04-03T12:58:51.232Z&quot;},
+        {&quot;type&quot;:&quot;goal&quot;,&quot;text&quot;:&quot;1:0 Steve A. (4)&quot;,&quot;minute&quot;:&quot;26&quot;,&quot;position&quot;:&quot;left&quot;,&quot;datetime&quot;:&quot;2016-04-03T12:58:51.232Z&quot;},
         {&quot;type&quot;:&quot;half-time-break&quot;,&quot;event&quot;:&quot;Half-Time-Break&quot;,&quot;text&quot;:&quot;1:16 pm&quot;,&quot;minute&quot;:&quot;46&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:18:51.232Z&quot;},
 
         {&quot;type&quot;:&quot;kick-off&quot;,&quot;event&quot;:&quot;Kick-Off&quot;,&quot;text&quot;:&quot;1:32 pm&quot;,&quot;minute&quot;:&quot;45&quot;,&quot;position&quot;:&quot;bottom&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:32:51.232Z&quot;},
@@ -221,6 +224,15 @@
                     ret = 2;
                   }
                 }
+              }
+              return ret;
+            },
+
+            lastKickOffEvent: function(allMatchEvents) {
+              var ret = null;
+              var index = _.findLastIndex(allMatchEvents, {type: 'kick-off'});
+              if (index > -1) {
+                ret = allMatchEvents[index];
               }
               return ret;
             },
@@ -430,29 +442,12 @@
               var allMatchEvents = matchEvents();
               $.each(allMatchEvents, function(index, matchEvent) {
                 matchEvent = addEventAttributes(index, lastMinute, matchEvent, allMatchEvents);
-                if (index > 0) {
+                if (index > 0 && matchEvent.type != 'kick-off') {
                   prependToTimeline(timelineEvent(false, lastMinute, matchEvent.minute));
                 }
                 prependToTimeline(matchEvent);
                 lastMinute = matchEvent.minute;
-                /*
-                var lastEvent = (index === allMatchEvents.length - 1);
-                if (lastEvent === true) {
-                  prependToTimeline(timelineEvent(true));
-                }
-                */
               });
-
-              /*
-              lastMinute = 0;
-              console.log(allMatchEvents.length);
-              for(var i = 0; i < 16; i++) {
-                matchEvent = allMatchEvents[i];
-                matchEvent = addEventAttributes(i, lastMinute, matchEvent, allMatchEvents);
-                lastMinute = matchEvent.minute;
-                prependToTimeline(matchEvent);
-              }
-              */
             };
 
             return {
@@ -461,7 +456,7 @@
             };
           })();
 
-          matchEventsRenderer.matchEventsEl.data('match-events', []);
+          //matchEventsRenderer.matchEventsEl.data('match-events', []);
           matchEventsRenderer.init();
 
 
@@ -481,7 +476,6 @@
               'half-time-break':   ['type', 'minute', 'datetime', 'position', 'text', 'event'],
               'final-whistle':     ['type', 'minute', 'datetime', 'position', 'text', 'event']//,
               /*
-              'penalty':           ['type', 'minute', 'position', 'text', 'event'],
               'penalty-shoot-out': ['type', 'minute', 'position', 'text', 'event']
               */
             };
@@ -569,7 +563,6 @@
 
               matchEventButtons.prop('disabled', 'disabled');
 
-              //matchEventButtons.filter(':not([data-match-event=kick-off])').removeProp('disabled');
               enableDecidingEventButtons(indexes, decidingGame, lastMatchEvent);
               enableStartEndEventButtons(indexes, lastMatchEvent);
               enableMatchEventButtons(indexes);
@@ -590,9 +583,14 @@
 
             var calculateMinute = function(allMatchEvents, type) {
               ret = 0;
-              if (allMatchEvents.length > 0) {
-                //matchStateMethods.halfTimeNumber
-                ret = moment().diff(allMatchEvents[0].datetime, 'minutes');
+              if (allMatchEvents.length > 0) {                
+                var halfTimeNumber = matchStateMethods.halfTimeNumber(allMatchEvents);
+                ret = matchStateMethods.halfTimeStartMinute(halfTimeNumber);
+
+                if (type != 'kick-off') {
+                  var lastKickOffEvent = matchStateMethods.lastKickOffEvent(allMatchEvents);
+                  ret = ret + moment().diff(lastKickOffEvent.datetime, 'minutes');
+                }
               }
               return ret;
             };
@@ -620,8 +618,8 @@
               return allMatchEvents;
             };
 
-            var submitMatchEvent = function(type) {
-              type = 'goal';
+            var submitMatchEvent = function() {
+              var type = matchEventFormEl.find('input[name=type]').val().trim();
 
               if (['kick-off', 'half-time-break', 'final-whistle'].indexOf(type) > -1) {
                 matchEventFormEl.find('input[name=event]').parent().removeClass('hidden');
@@ -639,37 +637,6 @@
               if (_.any(ret, function(value, key) {return value.trim() === '';})) {
                 ret = false;
               }
-
-              /*
-              {"type":"kick-off",        "minute":"0", "position":"bottom",  "text":"12:30 am", "event":"Kick-Off"},
-              {"type":"timeline",        "minute":"26"},
-              {"type":"goal",            "minute":"26", "position":"left",   "text":"0:1 Karl-Heinz (4)"},
-              {"type":"timeline",        "minute":"46"},
-              {"type":"half-time-break", "minute":"46", "position":"top",    "text":"1:16 pm",  "event":"Pause"},
-              {"type":"kick-off",        "minute":"45", "position":"bottom", "text":"1:32 pm",  "event":"Kick-Off"},
-              {"type":"timeline",        "minute":"47"},
-              {"type":"foul-yellow",     "minute":"47", "position":"right",  "text":"Karl-Heinz (4)"},
-              {"type":"timeline",        "minute":"48"},
-              {"type":"foul-yellow",     "minute":"48", "position":"left",   "text":"Hans-Joachim (10)"},
-              {"type":"timeline",        "minute":"50"},
-              {"type":"foul-yellow-red", "minute":"50", "position":"right",  "text":"Karl-Heinz (4)"},
-              {"type":"timeline",        "minute":"60"},
-              {"type":"foul-red",        "minute":"60", "position":"left",   "text":"Bob Carter(8)"},
-              {"type":"timeline",        "minute":"93"},
-              {"type":"final-whistle",   "minute":"93", "position":"top",    "text":"1:16 pm",  "event":"Final Whistle"}
-
-              Kick-Off                   <integer>       top                 <string>           <string>
-              timeline                                   bottom
-              goal                                       left
-              half-time-break                            right
-              foul-yellow
-              foul-yellow-red
-              foul-red
-              final-whistle
-
-              penalty
-              penalty-shoot-out
-              */
 
               return ret;
             };
