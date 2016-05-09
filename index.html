@@ -77,21 +77,23 @@
         </div>
         <div class="hidden-xs col-sm-3 col-md-4"></div>
       </div>
-      <div class="cntl js-match-events" data-match-events="[
+      <div class="cntl js-match-events" data-match-score="0:0" data-match-events="[
         {&quot;type&quot;:&quot;kick-off&quot;,&quot;event&quot;:&quot;Kick-Off&quot;,&quot;text&quot;:&quot;12:30 am&quot;,&quot;minute&quot;:&quot;0&quot;,&quot;position&quot;:&quot;bottom&quot;,&quot;datetime&quot;:&quot;2016-04-03T12:32:51.232Z&quot;},
         {&quot;type&quot;:&quot;goal&quot;,&quot;text&quot;:&quot;1:0 Steve A. (4)&quot;,&quot;minute&quot;:&quot;26&quot;,&quot;position&quot;:&quot;left&quot;,&quot;datetime&quot;:&quot;2016-04-03T12:58:51.232Z&quot;},
-        {&quot;type&quot;:&quot;half-time-break&quot;,&quot;event&quot;:&quot;Half-Time-Break&quot;,&quot;text&quot;:&quot;1:16 pm&quot;,&quot;minute&quot;:&quot;46&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:18:51.232Z&quot;},
+        {&quot;type&quot;:&quot;half-time-break&quot;,&quot;event&quot;:&quot;Half-Time-Break&quot;,&quot;text&quot;:&quot;1:16 pm<br />Match Score: 1:0&quot;,&quot;minute&quot;:&quot;46&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:18:51.232Z&quot;},
 
         {&quot;type&quot;:&quot;kick-off&quot;,&quot;event&quot;:&quot;Kick-Off&quot;,&quot;text&quot;:&quot;1:32 pm&quot;,&quot;minute&quot;:&quot;45&quot;,&quot;position&quot;:&quot;bottom&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:32:51.232Z&quot;},
         {&quot;type&quot;:&quot;foul-yellow&quot;,&quot;text&quot;:&quot;Steve A. (4)&quot;,&quot;minute&quot;:&quot;47&quot;,&quot;position&quot;:&quot;right&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:34:51.232Z&quot;},
         {&quot;type&quot;:&quot;foul-yellow&quot;,&quot;text&quot;:&quot;Bob W. (10)&quot;,&quot;minute&quot;:&quot;48&quot;,&quot;position&quot;:&quot;left&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:35:51.232Z&quot;},
         {&quot;type&quot;:&quot;foul-yellow-red&quot;,&quot;text&quot;:&quot;Steve A. (4)&quot;,&quot;minute&quot;:&quot;50&quot;,&quot;position&quot;:&quot;right&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:37:51.232Z&quot;},
         {&quot;type&quot;:&quot;foul-red&quot;,&quot;text&quot;:&quot;Bob Carter(8)&quot;,&quot;minute&quot;:&quot;60&quot;,&quot;position&quot;:&quot;left&quot;,&quot;datetime&quot;:&quot;2016-04-03T13:47:51.232Z&quot;},
-        {&quot;type&quot;:&quot;final-whistle&quot;,&quot;event&quot;:&quot;Final Whistle&quot;,&quot;text&quot;:&quot;2:19 pm&quot;,&quot;minute&quot;:&quot;93&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T14:20:51.232Z&quot;}
+        {&quot;type&quot;:&quot;final-whistle&quot;,&quot;event&quot;:&quot;Final Whistle&quot;,&quot;text&quot;:&quot;2:19 pm<br />Final Score: 1:0&quot;,&quot;minute&quot;:&quot;93&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T14:20:51.232Z&quot;}
       ]" data-match-character="deciding-game" data-match-event-type-translations="{
         &quot;goal&quot;:&quot;Goal&quot;,
         &quot;penalty&quot;:&quot;Penalty&quot;
       }">
+      <!--{&quot;type&quot;:&quot;timeline+minute&quot;,&quot;minute&quot;:&quot;93&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T14:20:51.232Z&quot;}-->
+      <!---->
         <span class="timeline-bar timeline-center"> 
           <span class="timeline-bar-fill"></span>
         </span>
@@ -173,7 +175,7 @@
       <script src="lib/moment-with-locales-2.13.0.min.js"></script>
       <script>
         $(document).ready(function() {
-          moment.locale('de');
+          moment.locale('en');
 
           _.mixin({
             "eachSlice": function(obj, size, iterator, context) {
@@ -252,6 +254,8 @@
 
 
           var matchEventCreator = (function(){
+            var matchEventsEl = $('.js-match-events');
+
             var minute = function(matchEvent) {
               var minute = parseInt(matchEvent.minute);
               var lastMinute = 
@@ -320,6 +324,9 @@
               var html = '';
               if (matchEvent.type != "timeline+minute") {
                 html = '<div class="timeline-content">' + content(matchEvent) + '</div>';
+              } else {
+                matchEvent.position = 'top';
+                html = '<div class="timeline-content">Match Score: ' + matchEventsEl.data('match-score') + '</div>';
               }
               return html;
             };
@@ -435,8 +442,19 @@
               return {type:type, minute:minute, eventHeight:eventHeight(differenceMinutes(lastMinute, minute))};
             };
 
+            var countMatchScore = function(matchEvent) {
+              if (['goal', 'penalty'].indexOf(matchEvent.type) > -1) {
+                var score = matchEventsEl.data('match-score').split(':');
+                var scorePositionIndexes = {'left':0, 'right':0};
+                var scoreIndex = scorePositionIndexes[matchEvent.position];
+                score[scoreIndex] = parseInt(score[scoreIndex]) + 1;
+                matchEventsEl.data('match-score', score.join(':'));
+              }
+            };
+
             var init = function() {
               $('.timeline-states').html('');
+              matchEventsEl.data('match-score', '0:0');
 
               var lastMinute = 0;
               var allMatchEvents = matchEvents();
@@ -446,6 +464,7 @@
                   prependToTimeline(timelineEvent(false, lastMinute, matchEvent.minute));
                 }
                 prependToTimeline(matchEvent);
+                countMatchScore(matchEvent);
                 lastMinute = matchEvent.minute;
               });
             };
@@ -469,7 +488,7 @@
             var requiredFields         = {
               'goal':              ['type', 'minute', 'datetime', 'position', 'text'],
               'penalty':           ['type', 'minute', 'datetime', 'position', 'text'],
-              'foul-yellow':      ['type', 'minute', 'datetime', 'position', 'text'],
+              'foul-yellow':       ['type', 'minute', 'datetime', 'position', 'text'],
               'foul-yellow-red':   ['type', 'minute', 'datetime', 'position', 'text'],
               'foul-red':          ['type', 'minute', 'datetime', 'position', 'text'],
               'kick-off':          ['type', 'minute', 'datetime', 'position', 'text', 'event'],
@@ -595,14 +614,16 @@
               return ret;
             };
 
+            var matchScore = function() {
+              return matchEventsEl.data('match-score');
+            };
+
             var addEventOrShowEventForm = function(allMatchEvents, type, position) {
               var currentMinute = calculateMinute(allMatchEvents, type);
               var events = {
                 'kick-off': {"type":"kick-off","event":"Kick-Off","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"},
-                'final-whistle': {"type":"final-whistle","event":"Final Whistle","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
-
-                'half-time-break': {"type":"half-time-break","event":"Pause","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
-
+                'final-whistle': {"type":"final-whistle","event":"Final Whistle","text":moment().format('LT') + "<br />Final Score: " + matchScore(),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
+                'half-time-break': {"type":"half-time-break","event":"Pause","text":moment().format('LT') + "<br />Match Score: " + matchScore(),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
                 'goal': showEventForm, 
                 'penalty': showEventForm, 
                 'foul-yellow': showEventForm, 
@@ -636,6 +657,15 @@
 
               if (_.any(ret, function(value, key) {return value.trim() === '';})) {
                 ret = false;
+              }
+
+              if (['goal', 'penalty'].indexOf(type) > -1) {
+                var matchScore = matchEventsEl.data('match-score');
+                if (ret['position'] === 'left') {
+                  ret['text'] = matchScore + ' ' + ret['text'];
+                } else {
+                  ret['text'] =  ret['text'] + ' ' + matchScore;
+                }
               }
 
               return ret;

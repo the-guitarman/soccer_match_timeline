@@ -13,8 +13,8 @@ It's a subproject of my [club homepage](https://github.com/the-guitarman/club_ho
 ### TODOs
 
 - [x] calculate current minute based on kick-off time
-- [ ] show current score
-- [ ] show score at goal/penalty event
+- [x] show current score
+- [x] show score at goal/penalty event
 - [ ] penalty shoot-out functionality
 - [ ] break (because of wether, ...) functionality
 - [ ] show team names
