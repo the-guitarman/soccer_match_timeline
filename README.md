@@ -18,3 +18,4 @@ It's a subproject of my [club homepage](https://github.com/the-guitarman/club_ho
 - [ ] penalty shoot-out functionality
 - [ ] break (because of wether, ...) functionality
 - [ ] show team names
+- [ ] add translations

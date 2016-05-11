@@ -15,7 +15,7 @@
       <div class="row js-match-event-buttons css-match-event-buttons">
 
         <div class="col-xs-12 text-center">
-          <div class="btn-group" role="group" aria-label="time line controls">
+          <div class="btn-group js-standard-match-event-buttons" role="group" aria-label="time line controls">
             <button type="button" class="btn btn-default with-example" data-match-event="kick-off">Kick-Off</button>
             <button type="button" class="btn btn-default with-example" data-match-event="half-time-break" data-match-event-position="top" disabled="disabled">Half-Time-Break</button>
             <button type="button" class="btn btn-default with-example" data-match-event="break" data-match-event-position="top" disabled="disabled">Break<br /><small>(e.g. Wether)</small></button>
@@ -24,10 +24,25 @@
           <div class="btn-group js-deciding-game-buttons hidden" role="group" aria-label="time line controls">
             <!--<button type="button" class="btn btn-default" data-match-event="extra-time" data-match-event-position="bottom" disabled="disabled">Extra-Time</button>-->
             <button type="button" class="btn btn-default" data-match-event="penalty-shoot-out" data-match-event-position="top" disabled="disabled">Penalty Shoot-Out</button>
+            <button type="button" class="btn btn-default" data-match-event="final-whistle" data-match-event-position="bottom" disabled="disabled">Final Whistle</button>
           </div>
         </div>
 
-        <div class="col-xs-6 text-center">
+        <div class="col-xs-6 text-center js-penalty-shoot-out-event-buttons hidden">
+          <div class="btn-group" role="group" aria-label="time line controls">
+            <button type="button" class="btn btn-default" data-match-event="penalty-goal" data-match-event-position="left" disabled="disabled">Goal</button>
+            <button type="button" class="btn btn-default" data-match-event="no-penalty-goal" data-match-event-position="left" disabled="disabled">No Goal</button>
+          </div>
+        </div>
+
+        <div class="col-xs-6 text-center js-penalty-shoot-out-event-buttons hidden">
+          <div class="btn-group" role="group" aria-label="time line controls">
+            <button type="button" class="btn btn-default" data-match-event="penalty-goal" data-match-event-position="right" disabled="disabled">Goal</button>
+            <button type="button" class="btn btn-default" data-match-event="no-penalty-goal" data-match-event-position="right" disabled="disabled">No Goal</button>
+          </div>
+        </div>
+
+        <div class="col-xs-6 text-center js-standard-match-event-buttons">
           <div class="btn-group" role="group" aria-label="time line controls">
             <button type="button" class="btn btn-default" data-match-event="goal" data-match-event-position="left" disabled="disabled">Goal</button>
             <button type="button" class="btn btn-default" data-match-event="penalty" data-match-event-position="left" disabled="disabled">Penalty</button>
@@ -39,7 +54,7 @@
           </div>
         </div>
 
-        <div class="col-xs-6 text-center">
+        <div class="col-xs-6 text-center js-standard-match-event-buttons">
           <div class="btn-group" role="group" aria-label="time line controls">
             <button type="button" class="btn btn-default" data-match-event="goal" data-match-event-position="right" disabled="disabled">Goal</button>
             <button type="button" class="btn btn-default" data-match-event="penalty" data-match-event-position="right" disabled="disabled">Penalty</button>
@@ -175,6 +190,8 @@
       <script src="lib/moment-with-locales-2.13.0.min.js"></script>
       <script>
         $(document).ready(function() {
+          var matchEventsEl = $('.js-match-events');
+
           moment.locale('en');
 
           _.mixin({
@@ -247,6 +264,38 @@
             halfTimeMinutes: function(halfTimeNumber) {
               var h = {1:45, 2:45, 3:15, 4:15};
               return h[halfTimeNumber];
+            },
+
+            isPenaltyShootOut: function(allMatchEvents, type) {
+              return type === 'penalty-shoot-out' || (_.findLastIndex(allMatchEvents, {type: 'penalty-shoot-out'}) > -1);
+            },
+
+            isPenaltyShootOutPossible: function(allMatchEvents) {
+              var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
+              return indexes.finalWhistleIndexes.length == 2;
+            },
+
+            initMatchScore: function() {
+              var score = '0:0';
+              matchEventsEl.data('match-score', score);
+              return score;
+            },
+
+            matchScore: function() {
+              return matchEventsEl.data('match-score');
+            },
+
+            countMatchScore: function(matchEvent) {
+              var score = matchStateMethods.matchScore();
+              if (['goal', 'penalty', 'penalty-goal'].indexOf(matchEvent.type) > -1) {
+                score = score.split(':');
+                var scorePositionIndexes = {'left':0, 'right':1};
+                var scoreIndex = scorePositionIndexes[matchEvent.position];
+                score[scoreIndex] = parseInt(score[scoreIndex]) + 1;
+                score = score.join(':');
+                matchEventsEl.data('match-score', score);
+              }
+              return score;
             }
           };
 
@@ -257,15 +306,22 @@
             var matchEventsEl = $('.js-match-events');
 
             var minute = function(matchEvent) {
-              var minute = parseInt(matchEvent.minute);
-              var lastMinute = 
-                matchStateMethods.halfTimeStartMinute(matchEvent.halfTime) + 
-                matchStateMethods.halfTimeMinutes(matchEvent.halfTime);
+              var ret = '';
+              if (['penalty-goal', 'no-penalty-goal'].indexOf(matchEvent.type) > -1) {
+                ret = '<div class="timeline-icon timeline-center"></div>';
+              } else if (matchEvent.type != 'penalty-shoot-out') {
+                var minute = parseInt(matchEvent.minute);
+                var lastMinute = 
+                  matchStateMethods.halfTimeStartMinute(matchEvent.halfTime) + 
+                  matchStateMethods.halfTimeMinutes(matchEvent.halfTime);
 
-              if (matchEvent.minute > lastMinute) {
-                minute = lastMinute + "+" + (matchEvent.minute - lastMinute);
+                if (matchEvent.minute > lastMinute) {
+                  minute = lastMinute + "+" + (matchEvent.minute - lastMinute);
+                }
+
+                ret = '<div class="timeline-icon timeline-center">\'' + minute + '</div>';
               }
-              return '<div class="timeline-icon timeline-center">\'' + minute + '</div>';
+              return ret;
             };
 
             var concatText = function(text1, text2, matchEventType) {
@@ -305,8 +361,15 @@
 
             var content = function(matchEvent) {
               var html = '<p>';
-              if (['goal', 'penalty'].indexOf(matchEvent.type) > -1) {
-                var soccerBallImage = '<img src="images/timeline/soccer_ball_24x24.png" alt="" />';
+              if (['goal', 'penalty', 'penalty-goal', 'no-penalty-goal'].indexOf(matchEvent.type) > -1) {
+                var soccerBallImage = '';
+                if (matchEvent.type === 'penalty-goal') {
+                  soccerBallImage = '<img src="images/timeline/soccer_ball_green_24x24.png" alt="" />';
+                } else if (matchEvent.type === 'no-penalty-goal') {
+                  soccerBallImage = '<img src="images/timeline/soccer_ball_red_24x24.png" alt="" />';
+                } else {
+                  soccerBallImage = '<img src="images/timeline/soccer_ball_24x24.png" alt="" />';
+                }
                 var text = soccerBallImage + ' ' + matchEvent.typeTranslation;
                 if (matchEvent.position === 'left') {
                   text = matchEvent.typeTranslation + ' ' + soccerBallImage;
@@ -326,7 +389,7 @@
                 html = '<div class="timeline-content">' + content(matchEvent) + '</div>';
               } else {
                 matchEvent.position = 'top';
-                html = '<div class="timeline-content">Match Score: ' + matchEventsEl.data('match-score') + '</div>';
+                html = '<div class="timeline-content">Match Score: ' + matchStateMethods.matchScore() + '</div>';
               }
               return html;
             };
@@ -442,29 +505,19 @@
               return {type:type, minute:minute, eventHeight:eventHeight(differenceMinutes(lastMinute, minute))};
             };
 
-            var countMatchScore = function(matchEvent) {
-              if (['goal', 'penalty'].indexOf(matchEvent.type) > -1) {
-                var score = matchEventsEl.data('match-score').split(':');
-                var scorePositionIndexes = {'left':0, 'right':0};
-                var scoreIndex = scorePositionIndexes[matchEvent.position];
-                score[scoreIndex] = parseInt(score[scoreIndex]) + 1;
-                matchEventsEl.data('match-score', score.join(':'));
-              }
-            };
-
             var init = function() {
               $('.timeline-states').html('');
-              matchEventsEl.data('match-score', '0:0');
+              matchStateMethods.initMatchScore();
 
               var lastMinute = 0;
               var allMatchEvents = matchEvents();
               $.each(allMatchEvents, function(index, matchEvent) {
                 matchEvent = addEventAttributes(index, lastMinute, matchEvent, allMatchEvents);
-                if (index > 0 && matchEvent.type != 'kick-off') {
+                if (index > 0 && ['kick-off', 'penalty-goal', 'no-penalty-goal'].indexOf(matchEvent.type) == -1) {
                   prependToTimeline(timelineEvent(false, lastMinute, matchEvent.minute));
                 }
+                matchStateMethods.countMatchScore(matchEvent);
                 prependToTimeline(matchEvent);
-                countMatchScore(matchEvent);
                 lastMinute = matchEvent.minute;
               });
             };
@@ -482,21 +535,23 @@
 
 
           var matchEventButtonHandler = (function(matchEventsEl) {
-            var matchEventButtons      = $('.js-match-event-buttons button');
-            var matchEventFormSelector = '.js-match-event-form'
-            var matchEventFormEl       = $(matchEventFormSelector);
-            var requiredFields         = {
+            var matchEventButtons           = $('.js-standard-match-event-buttons button');
+            var decidingGameButtons         = $('.js-deciding-game-buttons button');
+            var penaltyShootOutEventButtons = $('.js-penalty-shoot-out-event-buttons button');
+            var matchEventFormSelector      = '.js-match-event-form'
+            var matchEventFormEl            = $(matchEventFormSelector);
+            var requiredFields = {
               'goal':              ['type', 'minute', 'datetime', 'position', 'text'],
               'penalty':           ['type', 'minute', 'datetime', 'position', 'text'],
+              'penalty-goal':      ['type', 'datetime', 'position', 'text'],
+              'no-penalty-goal':   ['type', 'datetime', 'position', 'text'],
               'foul-yellow':       ['type', 'minute', 'datetime', 'position', 'text'],
               'foul-yellow-red':   ['type', 'minute', 'datetime', 'position', 'text'],
               'foul-red':          ['type', 'minute', 'datetime', 'position', 'text'],
               'kick-off':          ['type', 'minute', 'datetime', 'position', 'text', 'event'],
               'half-time-break':   ['type', 'minute', 'datetime', 'position', 'text', 'event'],
-              'final-whistle':     ['type', 'minute', 'datetime', 'position', 'text', 'event']//,
-              /*
-              'penalty-shoot-out': ['type', 'minute', 'position', 'text', 'event']
-              */
+              'final-whistle':     ['type', 'minute', 'datetime', 'position', 'text', 'event'],
+              'penalty-shoot-out': ['type', 'minute', 'datetime', 'position', 'text', 'event']
             };
 
             var hideEventForm = function() {
@@ -585,6 +640,7 @@
               enableDecidingEventButtons(indexes, decidingGame, lastMatchEvent);
               enableStartEndEventButtons(indexes, lastMatchEvent);
               enableMatchEventButtons(indexes);
+              switchDecidingGameButtonsVisibility(decidingGame);
             };
 
             var detectDecidingGame = function(matchEventsEl) {
@@ -592,43 +648,60 @@
             };
 
             var switchDecidingGameButtonsVisibility = function(decidingGame) {
+              var allMatchEvents = matchEventsEl.data('match-events') || [];
               var decidingGameButtonsParent = $('.js-deciding-game-buttons');
-              if (decidingGame === true) {
+              if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true) {
                 decidingGameButtonsParent.removeClass('hidden');
+                $('.js-standard-match-event-buttons').addClass('hidden');
+                $('.js-penalty-shoot-out-event-buttons').removeClass('hidden');
+                decidingGameButtons.removeProp('disabled');
               } else {
                 decidingGameButtonsParent.addClass('hidden');
+                $('.js-standard-match-event-buttons').removeClass('hidden');
+                $('.js-penalty-shoot-out-event-buttons').addClass('hidden');
+                decidingGameButtons.prop('disabled', 'disabled');
+              }
+              if (decidingGame === true && matchStateMethods.isPenaltyShootOut(allMatchEvents) === true) {
+                decidingGameButtons.prop('disabled', 'disabled');
+                penaltyShootOutEventButtons.removeProp('disabled');
+              } else {
+                decidingGameButtons.removeProp('disabled');
+                penaltyShootOutEventButtons.prop('disabled', 'disabled');
               }
             };
 
             var calculateMinute = function(allMatchEvents, type) {
               ret = 0;
-              if (allMatchEvents.length > 0) {                
-                var halfTimeNumber = matchStateMethods.halfTimeNumber(allMatchEvents);
-                ret = matchStateMethods.halfTimeStartMinute(halfTimeNumber);
+              if (allMatchEvents.length > 0) {     
+                if (matchStateMethods.isPenaltyShootOut(allMatchEvents, type) === false) {           
+                  var halfTimeNumber = matchStateMethods.halfTimeNumber(allMatchEvents);
+                  ret = matchStateMethods.halfTimeStartMinute(halfTimeNumber);
 
-                if (type != 'kick-off') {
-                  var lastKickOffEvent = matchStateMethods.lastKickOffEvent(allMatchEvents);
-                  ret = ret + moment().diff(lastKickOffEvent.datetime, 'minutes');
+                  if (type != 'kick-off') {
+                    var lastKickOffEvent = matchStateMethods.lastKickOffEvent(allMatchEvents);
+                    ret = ret + moment().diff(lastKickOffEvent.datetime, 'minutes');
+                  }
+                } else {
+                  ret = '';
                 }
               }
               return ret;
-            };
-
-            var matchScore = function() {
-              return matchEventsEl.data('match-score');
             };
 
             var addEventOrShowEventForm = function(allMatchEvents, type, position) {
               var currentMinute = calculateMinute(allMatchEvents, type);
               var events = {
                 'kick-off': {"type":"kick-off","event":"Kick-Off","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"},
-                'final-whistle': {"type":"final-whistle","event":"Final Whistle","text":moment().format('LT') + "<br />Final Score: " + matchScore(),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
-                'half-time-break': {"type":"half-time-break","event":"Pause","text":moment().format('LT') + "<br />Match Score: " + matchScore(),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
+                'final-whistle': {"type":"final-whistle","event":"Final Whistle","text":moment().format('LT') + "<br />Final Score: " + matchStateMethods.matchScore(),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
+                'half-time-break': {"type":"half-time-break","event":"Pause","text":moment().format('LT') + "<br />Match Score: " + matchStateMethods.matchScore(),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
                 'goal': showEventForm, 
                 'penalty': showEventForm, 
+                'penalty-goal': showEventForm, 
+                'no-penalty-goal': showEventForm, 
                 'foul-yellow': showEventForm, 
                 'foul-yellow-red': showEventForm, 
-                'foul-red': showEventForm
+                'foul-red': showEventForm,
+                'penalty-shoot-out': {"type":"penalty-shoot-out","event":"Penalty Shoot-Out","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"},
               };
               var ret = events[type];
               if (typeof(ret) === 'object') {
@@ -657,10 +730,8 @@
 
               if (_.any(ret, function(value, key) {return value.trim() === '';})) {
                 ret = false;
-              }
-
-              if (['goal', 'penalty'].indexOf(type) > -1) {
-                var matchScore = matchEventsEl.data('match-score');
+              } else if (['goal', 'penalty', 'penalty-goal', 'no-penalty-goal'].indexOf(type) > -1) {
+                var matchScore = matchStateMethods.countMatchScore(ret);
                 if (ret['position'] === 'left') {
                   ret['text'] = matchScore + ' ' + ret['text'];
                 } else {
@@ -673,10 +744,9 @@
 
             var init = function() {
               var decidingGame = detectDecidingGame(matchEventsEl);
-              switchDecidingGameButtonsVisibility(decidingGame);
 
               // match event button event
-              matchEventButtons.click(function() {
+              $('.js-standard-match-event-buttons button, .js-deciding-game-buttons button, .js-penalty-shoot-out-event-buttons button').click(function() {
                 var button = $(this);
                 var matchEvents = matchEventsEl.data('match-events') || [];
                 var newMatchEvents = addEventOrShowEventForm(matchEvents, button.data('match-event'), button.data('match-event-position'));
