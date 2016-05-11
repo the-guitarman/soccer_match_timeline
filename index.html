@@ -296,6 +296,11 @@
                 matchEventsEl.data('match-score', score);
               }
               return score;
+            },
+
+            matchScoreUndecided: function() {
+              var score = matchEventsEl.data('match-score').split(':');
+              return parseInt(score[0]) === parseInt(score[1]);
             }
           };
 
@@ -308,7 +313,7 @@
             var minute = function(matchEvent) {
               var ret = '';
               if (['penalty-goal', 'no-penalty-goal'].indexOf(matchEvent.type) > -1) {
-                ret = '<div class="timeline-icon timeline-center"></div>';
+                ret = '<div class="timeline-icon timeline-center penalty-shoot-out"></div>';
               } else if (matchEvent.type != 'penalty-shoot-out') {
                 var minute = parseInt(matchEvent.minute);
                 var lastMinute = 
@@ -650,7 +655,7 @@
             var switchDecidingGameButtonsVisibility = function(decidingGame) {
               var allMatchEvents = matchEventsEl.data('match-events') || [];
               var decidingGameButtonsParent = $('.js-deciding-game-buttons');
-              if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true) {
+              if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true && matchStateMethods.matchScoreUndecided()) {
                 decidingGameButtonsParent.removeClass('hidden');
                 $('.js-standard-match-event-buttons').addClass('hidden');
                 $('.js-penalty-shoot-out-event-buttons').removeClass('hidden');

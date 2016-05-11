@@ -79,6 +79,13 @@ body .row {
 	color: #fff;
 }
 
+.timeline-icon.penalty-shoot-out {
+    border-radius: 0px;
+    height: 40px;
+    background-color: #FFFFFF;
+    box-shadow: none;
+}
+
 .timeline-content {
 	width: 47%;
 	border-radius: 8px;
