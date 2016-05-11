@@ -105,7 +105,9 @@
         {&quot;type&quot;:&quot;final-whistle&quot;,&quot;event&quot;:&quot;Final Whistle&quot;,&quot;text&quot;:&quot;2:19 pm<br />Final Score: 1:0&quot;,&quot;minute&quot;:&quot;93&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T14:20:51.232Z&quot;}
       ]" data-match-character="deciding-game" data-match-event-type-translations="{
         &quot;goal&quot;:&quot;Goal&quot;,
-        &quot;penalty&quot;:&quot;Penalty&quot;
+        &quot;penalty&quot;:&quot;Penalty&quot;,
+        &quot;penalty-goal&quot;:&quot;Goal&quot;,
+        &quot;no-penalty-goal&quot;:&quot;No Goal&quot;
       }">
       <!--{&quot;type&quot;:&quot;timeline+minute&quot;,&quot;minute&quot;:&quot;93&quot;,&quot;position&quot;:&quot;top&quot;,&quot;datetime&quot;:&quot;2016-04-03T14:20:51.232Z&quot;}-->
       <!---->
@@ -331,7 +333,7 @@
 
             var concatText = function(text1, text2, matchEventType) {
               var ret = text1 + ' ' + text2;
-              if (['goal', 'penalty'].indexOf(matchEventType) > -1) {
+              if (['goal', 'penalty', 'penalty-goal', 'no-penalty-goal'].indexOf(matchEventType) > -1) {
                 ret = text1 + ', ' + text2;
               }
               return ret;
@@ -655,7 +657,7 @@
             var switchDecidingGameButtonsVisibility = function(decidingGame) {
               var allMatchEvents = matchEventsEl.data('match-events') || [];
               var decidingGameButtonsParent = $('.js-deciding-game-buttons');
-              if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true && matchStateMethods.matchScoreUndecided()) {
+              if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true) { // && matchStateMethods.matchScoreUndecided()) {
                 decidingGameButtonsParent.removeClass('hidden');
                 $('.js-standard-match-event-buttons').addClass('hidden');
                 $('.js-penalty-shoot-out-event-buttons').removeClass('hidden');
@@ -667,7 +669,8 @@
                 decidingGameButtons.prop('disabled', 'disabled');
               }
               if (decidingGame === true && matchStateMethods.isPenaltyShootOut(allMatchEvents) === true) {
-                decidingGameButtons.prop('disabled', 'disabled');
+                decidingGameButtons.filter('[data-match-event=penalty-shoot-out]').prop('disabled', 'disabled');
+                decidingGameButtons.filter('[data-match-event=final-whistle]').removeProp('disabled');
                 penaltyShootOutEventButtons.removeProp('disabled');
               } else {
                 decidingGameButtons.removeProp('disabled');
