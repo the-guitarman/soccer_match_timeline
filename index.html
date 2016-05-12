@@ -268,13 +268,18 @@
               return h[halfTimeNumber];
             },
 
+            matchScoreUndecided: function() {
+              var score = matchEventsEl.data('match-score').split(':');
+              return parseInt(score[0]) === parseInt(score[1]);
+            },
+
             isPenaltyShootOut: function(allMatchEvents, type) {
               return type === 'penalty-shoot-out' || (_.findLastIndex(allMatchEvents, {type: 'penalty-shoot-out'}) > -1);
             },
 
             isPenaltyShootOutPossible: function(allMatchEvents) {
               var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
-              return indexes.finalWhistleIndexes.length == 2;
+              return indexes.finalWhistleIndexes.length == 2 && matchStateMethods.matchScoreUndecided();
             },
 
             initMatchScore: function() {
@@ -298,11 +303,6 @@
                 matchEventsEl.data('match-score', score);
               }
               return score;
-            },
-
-            matchScoreUndecided: function() {
-              var score = matchEventsEl.data('match-score').split(':');
-              return parseInt(score[0]) === parseInt(score[1]);
             }
           };
 
@@ -590,8 +590,9 @@
             var enableDecidingEventButtons = function(indexes, decidingGame, lastMatchEvent) {
               if (decidingGame === true) {
                 if (indexes.finalWhistleIndexes.length === 2) {
-                  matchEventButtons.filter('[data-match-event=penalty-shoot-out]').removeProp('disabled');
-                  matchEventButtons.filter('[data-match-event=penalty]').removeProp('disabled');
+                  if (lastMatchEvent.type === 'final-whistle') {
+                    matchEventButtons.filter('[data-match-event=penalty-shoot-out]').removeProp('disabled');
+                  }
                 } else if (
                     (indexes.kickOffIndexes.length === 2 && indexes.finalWhistleIndexes.length === 1 && lastMatchEvent.type === 'final-whistle') ||
                     (indexes.kickOffIndexes.length === 3 && indexes.halfTimeBreakIndexes.length === 2 && lastMatchEvent.type === 'half-time-break')
@@ -657,7 +658,7 @@
             var switchDecidingGameButtonsVisibility = function(decidingGame) {
               var allMatchEvents = matchEventsEl.data('match-events') || [];
               var decidingGameButtonsParent = $('.js-deciding-game-buttons');
-              if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true) { // && matchStateMethods.matchScoreUndecided()) {
+              if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true) {
                 decidingGameButtonsParent.removeClass('hidden');
                 $('.js-standard-match-event-buttons').addClass('hidden');
                 $('.js-penalty-shoot-out-event-buttons').removeClass('hidden');
