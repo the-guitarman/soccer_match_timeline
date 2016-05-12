@@ -568,6 +568,7 @@
             };
 
             var showEventForm = function(type, position, currentMinute) {
+              matchEventFormEl.find('.form-group').addClass('hidden');
               matchEventFormEl.find('input[name=type]').val(type);
               matchEventFormEl.find('input[name=position]').val(position);
               matchEventFormEl.find('input[name=minute]').val(currentMinute);
