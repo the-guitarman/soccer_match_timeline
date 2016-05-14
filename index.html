@@ -273,13 +273,37 @@
               return parseInt(score[0]) === parseInt(score[1]);
             },
 
-            isPenaltyShootOut: function(allMatchEvents, type) {
-              return type === 'penalty-shoot-out' || (_.findLastIndex(allMatchEvents, {type: 'penalty-shoot-out'}) > -1);
+            isPenaltyShootOutIsOver: function(allMatchEvents) {
+              var ret = false;
+              var penaltyShootOutIndex  = _.findLastIndex(allMatchEvents, {type: 'penalty-shoot-out'});
+              var lastFinalWhistleIndex = _.findLastIndex(allMatchEvents, {type: 'final-whistle'});
+              if (penaltyShootOutIndex > -1 && lastFinalWhistleIndex > penaltyShootOutIndex) {
+                ret = true;
+              }
+              return ret;
+            },
+
+            isPenaltyShootOut: function(allMatchEvents) {
+              var ret = false;
+              var penaltyShootOutIndex  = _.findLastIndex(allMatchEvents, {type: 'penalty-shoot-out'});
+              var lastFinalWhistleIndex = _.findLastIndex(allMatchEvents, {type: 'final-whistle'});
+              if (penaltyShootOutIndex > -1 && lastFinalWhistleIndex < penaltyShootOutIndex) {
+                ret = true;
+              }
+              return ret;
+            },
+
+            isPenaltyShootOutStart: function(allMatchEvents, type) {
+              return type === 'penalty-shoot-out' || _.last(allMatchEvents).type === 'penalty-shoot-out';
             },
 
             isPenaltyShootOutPossible: function(allMatchEvents) {
               var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
-              return indexes.finalWhistleIndexes.length == 2 && matchStateMethods.matchScoreUndecided();
+              return (
+                indexes.finalWhistleIndexes.length === 2 && 
+                matchStateMethods.matchScoreUndecided() === true &&
+                _.last(allMatchEvents).type === 'final-whistle'
+              );
             },
 
             initMatchScore: function() {
@@ -318,15 +342,17 @@
                 ret = '<div class="timeline-icon timeline-center penalty-shoot-out"></div>';
               } else if (matchEvent.type != 'penalty-shoot-out') {
                 var minute = parseInt(matchEvent.minute);
-                var lastMinute = 
-                  matchStateMethods.halfTimeStartMinute(matchEvent.halfTime) + 
-                  matchStateMethods.halfTimeMinutes(matchEvent.halfTime);
+                if (!_.isNaN(minute)) {
+                  var lastMinute = 
+                    matchStateMethods.halfTimeStartMinute(matchEvent.halfTime) + 
+                    matchStateMethods.halfTimeMinutes(matchEvent.halfTime);
 
-                if (matchEvent.minute > lastMinute) {
-                  minute = lastMinute + "+" + (matchEvent.minute - lastMinute);
+                  if (matchEvent.minute > lastMinute) {
+                    minute = lastMinute + "+" + (matchEvent.minute - lastMinute);
+                  }
+
+                  ret = '<div class="timeline-icon timeline-center">\'' + minute + '</div>';
                 }
-
-                ret = '<div class="timeline-icon timeline-center">\'' + minute + '</div>';
               }
               return ret;
             };
@@ -659,23 +685,39 @@
             var switchDecidingGameButtonsVisibility = function(decidingGame) {
               var allMatchEvents = matchEventsEl.data('match-events') || [];
               var decidingGameButtonsParent = $('.js-deciding-game-buttons');
-              if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true) {
-                decidingGameButtonsParent.removeClass('hidden');
+              var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
+              if (
+                  matchStateMethods.isPenaltyShootOutIsOver(allMatchEvents) === true || 
+                  (decidingGame === false && indexes.finalWhistleIndexes.length === 1)
+                 ) {
+                $('.js-standard-match-event-buttons').addClass('hidden');
+                $('.js-penalty-shoot-out-event-buttons').addClass('hidden');
+                decidingGameButtonsParent.addClass('hidden');
+                decidingGameButtons.prop('disabled', 'disabled');
+                penaltyShootOutEventButtons.prop('disabled', 'disabled');
+              } else if (decidingGame === true && matchStateMethods.isPenaltyShootOutPossible(allMatchEvents) === true) {
                 $('.js-standard-match-event-buttons').addClass('hidden');
                 $('.js-penalty-shoot-out-event-buttons').removeClass('hidden');
+                decidingGameButtonsParent.removeClass('hidden');
                 decidingGameButtons.removeProp('disabled');
-              } else {
-                decidingGameButtonsParent.addClass('hidden');
-                $('.js-standard-match-event-buttons').removeClass('hidden');
-                $('.js-penalty-shoot-out-event-buttons').addClass('hidden');
-                decidingGameButtons.prop('disabled', 'disabled');
-              }
-              if (decidingGame === true && matchStateMethods.isPenaltyShootOut(allMatchEvents) === true) {
+                penaltyShootOutEventButtons.prop('disabled', 'disabled');
+              } else if (
+                  decidingGame === true && (
+                    matchStateMethods.isPenaltyShootOutStart(allMatchEvents) === true ||
+                    matchStateMethods.isPenaltyShootOut(allMatchEvents) === true
+                  )
+                 ) {
+                $('.js-standard-match-event-buttons').addClass('hidden');
+                $('.js-penalty-shoot-out-event-buttons').removeClass('hidden');
+                decidingGameButtonsParent.removeClass('hidden');
                 decidingGameButtons.filter('[data-match-event=penalty-shoot-out]').prop('disabled', 'disabled');
                 decidingGameButtons.filter('[data-match-event=final-whistle]').removeProp('disabled');
                 penaltyShootOutEventButtons.removeProp('disabled');
-              } else {
-                decidingGameButtons.removeProp('disabled');
+              } else if (!matchStateMethods.isPenaltyShootOutIsOver(allMatchEvents)) {
+                $('.js-standard-match-event-buttons').removeClass('hidden');
+                $('.js-penalty-shoot-out-event-buttons').addClass('hidden');
+                decidingGameButtonsParent.addClass('hidden');
+                decidingGameButtons.prop('disabled', 'disabled');
                 penaltyShootOutEventButtons.prop('disabled', 'disabled');
               }
             };
@@ -683,7 +725,7 @@
             var calculateMinute = function(allMatchEvents, type) {
               ret = 0;
               if (allMatchEvents.length > 0) {     
-                if (matchStateMethods.isPenaltyShootOut(allMatchEvents, type) === false) {           
+                if (matchStateMethods.isPenaltyShootOutStart(allMatchEvents, type) === false) {           
                   var halfTimeNumber = matchStateMethods.halfTimeNumber(allMatchEvents);
                   ret = matchStateMethods.halfTimeStartMinute(halfTimeNumber);
 
@@ -714,6 +756,12 @@
                 'penalty-shoot-out': {"type":"penalty-shoot-out","event":"Penalty Shoot-Out","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"},
               };
               var ret = events[type];
+              if (type === 'final-whistle') {
+                var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
+                if (indexes.finalWhistleIndexes.length === 2) {
+                  ret.minute = '';
+                }
+              }
               if (typeof(ret) === 'object') {
                 allMatchEvents.push(ret);
               } else if (typeof(ret) === 'function') {
