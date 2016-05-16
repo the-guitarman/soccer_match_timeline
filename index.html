@@ -721,7 +721,7 @@
                   if (type != 'kick-off') {
                     var lastKickOffEvent = matchStateMethods.lastEventOf(allMatchEvents, 'kick-off');
                     ret = ret + moment().diff(lastKickOffEvent.datetime, 'minutes');
-                    ret = ret - calculateBreakMinutes();
+                    ret = ret - calculateBreakMinutes(allMatchEvents, type);
                   }
                 } else {
                   ret = '';
