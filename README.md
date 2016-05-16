@@ -15,7 +15,7 @@ It's a subproject of my [club homepage](https://github.com/the-guitarman/club_ho
 - [x] calculate current minute based on kick-off time
 - [x] show current score
 - [x] show score at goal/penalty event
-- [ ] penalty shoot-out functionality
-- [ ] break (because of wether, ...) functionality
+- [x] penalty shoot-out functionality
+- [x] break (because of wether, ...) functionality
 - [ ] show team names
 - [ ] add translations

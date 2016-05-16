@@ -114,77 +114,7 @@
         <span class="timeline-bar timeline-center"> 
           <span class="timeline-bar-fill"></span>
         </span>
-        <div class="timeline-states js-match-events-timeline">
-
-          <div class="timeline-state position-top">
-            <div class="timeline-content">
-              <p><strong>Final Whistle</strong><br />1:16 pm</p>
-            </div>
-            <div class="timeline-icon timeline-center">'90+3</div>
-          </div>
-
-          <div style="height: 43px;"></div>
-
-          <div class="timeline-state position-right">
-            <div class="timeline-content">
-              <p><span class="foul-card yellow"></span><span class="foul-card red"></span>Steve A. (4)</p>
-            </div>
-            <div class="timeline-icon timeline-center">'50</div>
-          </div>
-
-          <div style="height: 2px;"></div>
-
-          <div class="timeline-state position-left">
-            <div class="timeline-content">
-              <p></span>Bob W. (10)<span class="foul-card yellow"></p>
-            </div>
-            <div class="timeline-icon timeline-center">'48</div>
-          </div>
-
-          <div style="height: 1px;"></div>
-
-          <div class="timeline-state position-right">
-            <div class="timeline-content">
-              <p><span class="foul-card yellow"></span>Steve A. (4)</p>
-            </div>
-            <div class="timeline-icon timeline-center">'47</div>
-          </div>
-
-          <div style="height: 2px;"></div>
-
-          <div class="timeline-state position-bottom half-time-break">
-            <div class="timeline-icon timeline-center">'45</div>
-            <div class="timeline-content" style="padding-bottom: 50px;">
-              <p><strong>Kick-Off</strong><br />1:32 pm</p>
-            </div>
-          </div>
-
-          <div class="timeline-state position-top half-time-break">
-            <div class="timeline-content">
-              <p><strong>Half-Time-Break</strong><br />1:16 pm</p>
-            </div>
-            <div class="timeline-icon timeline-center">'45+1</div>
-          </div>
-
-          <div style="height: 20px;"></div>
-
-          <div class="timeline-state position-right">
-            <div class="timeline-content">
-              <p><img src="images/timeline/soccer_ball_24x24.png" alt="" /> 0:1 Steve A. (4)</p>
-            </div>
-            <div class="timeline-icon timeline-center">'26</div>
-          </div>
-
-          <div style="height: 26px;"></div>
-          
-          <div class="timeline-state position-bottom">
-            <div class="timeline-icon timeline-center">'0</div>
-            <div class="timeline-content">
-              <p><strong>Kick-Off</strong><br />12:30 am</p>
-            </div>
-          </div>
-
-        </div>
+        <div class="timeline-states js-match-events-timeline"></div>
       </div>
       <script src="lib/extensions.js"></script>
       <script src="lib/jquery-1.11.1.min.js"></script>
@@ -209,6 +139,8 @@
               var kickOffIndexes       = [];
               var halfTimeBreakIndexes = [];
               var finalWhistleIndexes  = [];
+              var breakIndexes         = [];
+              var continuationIndexes  = [];
 
               $.each(allMatchEvents, function(index, matchEvent) {
                 if (matchEvent.type === 'kick-off') {
@@ -217,13 +149,19 @@
                   halfTimeBreakIndexes.push(index);
                 } else if (matchEvent.type === 'final-whistle') {
                   finalWhistleIndexes.push(index);
+                } else if (matchEvent.type === 'break') {
+                  breakIndexes.push(index);
+                } else if (matchEvent.type === 'continuation') {
+                  continuationIndexes.push(index);
                 }
               });
 
               return {
                 kickOffIndexes: kickOffIndexes, 
                 halfTimeBreakIndexes: halfTimeBreakIndexes,
-                finalWhistleIndexes: finalWhistleIndexes
+                finalWhistleIndexes: finalWhistleIndexes,
+                breakIndexes: breakIndexes,
+                continuationIndexes: continuationIndexes
               };
             },
 
@@ -249,9 +187,9 @@
               return ret;
             },
 
-            lastKickOffEvent: function(allMatchEvents) {
+            lastEventOf: function(allMatchEvents, type) {
               var ret = null;
-              var index = _.findLastIndex(allMatchEvents, {type: 'kick-off'});
+              var index = _.findLastIndex(allMatchEvents, {type: type});
               if (index > -1) {
                 ret = allMatchEvents[index];
               }
@@ -446,7 +384,11 @@
             };
 
             var timeline = function(matchEvent) {
-              return '<div style="height: ' + matchEvent.eventHeight + 'px;"></div>';
+              var ret = '';
+              if (matchEvent.eventHeight > 0) {
+                ret = '<div style="height: ' + matchEvent.eventHeight + 'px;"></div>';
+              }
+              return ret;
             };
 
             var init = function(matchEvent) {
@@ -546,7 +488,7 @@
               var allMatchEvents = matchEvents();
               $.each(allMatchEvents, function(index, matchEvent) {
                 matchEvent = addEventAttributes(index, lastMinute, matchEvent, allMatchEvents);
-                if (index > 0 && ['kick-off', 'penalty-goal', 'no-penalty-goal'].indexOf(matchEvent.type) == -1) {
+                if (index > 0 && ['kick-off', 'break', 'continuation', 'penalty-goal', 'no-penalty-goal'].indexOf(matchEvent.type) === -1) {
                   prependToTimeline(timelineEvent(false, lastMinute, matchEvent.minute));
                 }
                 matchStateMethods.countMatchScore(matchEvent);
@@ -584,7 +526,9 @@
               'kick-off':          ['type', 'minute', 'datetime', 'position', 'text', 'event'],
               'half-time-break':   ['type', 'minute', 'datetime', 'position', 'text', 'event'],
               'final-whistle':     ['type', 'minute', 'datetime', 'position', 'text', 'event'],
-              'penalty-shoot-out': ['type', 'minute', 'datetime', 'position', 'text', 'event']
+              'penalty-shoot-out': ['type', 'minute', 'datetime', 'position', 'text', 'event'],
+              'break':             ['type', 'minute', 'datetime', 'position', 'text', 'event'],
+              'continuation':      ['type', 'minute', 'datetime', 'position', 'text', 'event']
             };
 
             var hideEventForm = function() {
@@ -676,6 +620,25 @@
               enableStartEndEventButtons(indexes, lastMatchEvent);
               enableMatchEventButtons(indexes);
               switchDecidingGameButtonsVisibility(decidingGame);
+              breakContinuationButtonSwitch(allMatchEvents);
+            };
+
+            var breakContinuationButtonSwitch = function(allMatchEvents) {
+              var lastMatchEvent = _.last(allMatchEvents);
+              if (lastMatchEvent.type === 'break') {
+                matchEventButtons.prop('disabled', 'disabled');
+                matchEventButtons.filter('[data-match-event=break]').
+                  removeProp('disabled').
+                  data('match-event', 'continuation').
+                  data('match-event-position', 'bottom').
+                  html('Continuation');
+              } else {
+                matchEventButtons.filter('[data-match-event=break]').
+                  removeProp('disabled').
+                  data('match-event', 'break').
+                  data('match-event-position', 'top').
+                  html('Break<br /><small>(e.g. Wether)</small>');
+              }
             };
 
             var detectDecidingGame = function(matchEventsEl) {
@@ -722,16 +685,43 @@
               }
             };
 
+            var calculateBreakMinutes = function(allMatchEvents, type) {
+              var ret = 0;
+              var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
+              if (indexes.breakIndexes.length > 0) {
+                var lastKickOffIndex = indexes.kickOffIndexes[indexes.kickOffIndexes.length - 1];
+                if (indexes.breakIndexes.length === indexes.continuationIndexes.length) {
+                  var breakEvent = null;
+                  var continuationEvent = null;
+                  $.each(indexes.breakIndexes, function(index, eventIndex) {
+                    if (eventIndex > lastKickOffIndex) {
+                      breakEvent        = allMatchEvents[eventIndex];
+                      continuationEvent = allMatchEvents[(eventIndex + 1)];
+                      ret = moment(continuationEvent.datetime).diff(breakEvent.datetime, 'minutes');
+                    }
+                  });
+                } else if (type === 'continuation') {
+                  var lastBreakIndex = indexes.breakIndexes[indexes.breakIndexes.length - 1];
+                  if (lastKickOffIndex < lastBreakIndex) {
+                    var breakEvent = allMatchEvents[lastBreakIndex];
+                    ret = moment().diff(breakEvent.datetime, 'minutes') + 1;
+                  }
+                }
+              }
+              return ret;
+            };
+
             var calculateMinute = function(allMatchEvents, type) {
               ret = 0;
-              if (allMatchEvents.length > 0) {     
+              if (allMatchEvents.length > 0) {
                 if (matchStateMethods.isPenaltyShootOutStart(allMatchEvents, type) === false) {           
                   var halfTimeNumber = matchStateMethods.halfTimeNumber(allMatchEvents);
                   ret = matchStateMethods.halfTimeStartMinute(halfTimeNumber);
 
                   if (type != 'kick-off') {
-                    var lastKickOffEvent = matchStateMethods.lastKickOffEvent(allMatchEvents);
+                    var lastKickOffEvent = matchStateMethods.lastEventOf(allMatchEvents, 'kick-off');
                     ret = ret + moment().diff(lastKickOffEvent.datetime, 'minutes');
+                    ret = ret - calculateBreakMinutes();
                   }
                 } else {
                   ret = '';
@@ -754,6 +744,8 @@
                 'foul-yellow-red': showEventForm, 
                 'foul-red': showEventForm,
                 'penalty-shoot-out': {"type":"penalty-shoot-out","event":"Penalty Shoot-Out","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"},
+                'break': {"type":"break","event":"Break","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
+                'continuation': {"type":"continuation","event":"Continuation","text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"}
               };
               var ret = events[type];
               if (type === 'final-whistle') {
