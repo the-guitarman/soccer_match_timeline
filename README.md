@@ -9,13 +9,3 @@ It's a subproject of my [club homepage](https://github.com/the-guitarman/club_ho
 # Example
 
 ![Timeline](readme/image_01.jpg)
-
-### TODOs
-
-- [x] calculate current minute based on kick-off time
-- [x] show current score
-- [x] show score at goal/penalty event
-- [x] penalty shoot-out functionality
-- [x] break (because of wether, ...) functionality
-- [ ] show team names
-- [x] add translations
