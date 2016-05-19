@@ -6,6 +6,13 @@ A vertical timeline creator to display events of a soccer match with HTML/CSS/Ja
 
 It's a subproject of my [club homepage](https://github.com/the-guitarman/club_homepage) project. The intension is to send all match events to all connected clients via websockets from the playing field directly and to display them as a timeline. Nice benefit: This way other imprecise messenger communication becomes useless.
 
+## Dependencies
+
+- jQuery
+- Twitter Bootstrap (CSS)
+- Underscore.js
+- Moment.js with locales
+
 ## Example
 
 ![Timeline](readme/image_01.jpg)
