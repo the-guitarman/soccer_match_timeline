@@ -115,7 +115,11 @@ $(document).ready(function() {
     },
 
     isPenaltyShootOutStart: function(allMatchEvents, type) {
-      return type === 'penalty-shoot-out' || _.last(allMatchEvents).type === 'penalty-shoot-out';
+      var ret = false;
+      if (allMatchEvents.length > 0) {
+        ret = type === 'penalty-shoot-out' || _.last(allMatchEvents).type === 'penalty-shoot-out';
+      }
+      return ret;
     },
 
     isPenaltyShootOutPossible: function(allMatchEvents) {
@@ -536,7 +540,7 @@ $(document).ready(function() {
 
     var breakContinuationButtonSwitch = function(allMatchEvents) {
       var lastMatchEvent = _.last(allMatchEvents);
-      if (lastMatchEvent.type === 'break') {
+      if (!_.isEmpty(lastMatchEvent) && lastMatchEvent.type === 'break') {
         matchEventButtons.prop('disabled', 'disabled');
         matchEventButtons.filter('[data-match-event=break]').
           removeProp('disabled').
