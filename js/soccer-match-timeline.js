@@ -15,7 +15,7 @@ $(document).ready(function() {
     },
 
     breakEventButtonTranslation: function() {
-      return matchStateMethods.translate('break') + '<br /><small>(e.g. ' + matchStateMethods.translate('wether') + ')</small>';
+      return matchStateMethods.translate('break') + '<br /><small>(e.g. ' + matchStateMethods.translate('weather') + ')</small>';
     },
 
     finalEventIndexes: function(allMatchEvents) {
@@ -213,7 +213,7 @@ $(document).ready(function() {
 
     var concatText = function(text1, text2, matchEventType) {
       var ret = text1 + ' ' + text2;
-      if (['goal', 'penalty', 'penalty-goal', 'no-penalty-goal'].indexOf(matchEventType) > -1) {
+      if (['goal', 'penalty', 'replacement', 'penalty-goal', 'no-penalty-goal'].indexOf(matchEventType) > -1) {
         ret = text1 + ', ' + text2;
       }
       return ret;
@@ -261,6 +261,14 @@ $(document).ready(function() {
         if (matchEvent.position === 'left') {
           text = matchEvent.typeTranslation + ' ' + soccerBallImage;
         }
+        html = html + contentAlignment(text, matchEvent);
+      } else if (matchEvent.type === 'replacement') {
+        var image = '<img src="images/timeline/replacement_24x24.png" class="replacement" alt="" />';
+        var text = image + ' ' + matchEvent.typeTranslation;
+        if (matchEvent.position === 'left') {
+          text = matchEvent.typeTranslation + ' ' + image;
+        }
+        matchEvent.text = matchEvent['text-in'] + ' for ' + matchEvent['text-out'];
         html = html + contentAlignment(text, matchEvent);
       } else if (_.contains(['foul-yellow', 'foul-yellow-red', 'foul-red'], matchEvent.type)) {
         html = html + contentAlignment(foulHTML(matchEvent.type), matchEvent);
@@ -433,6 +441,7 @@ $(document).ready(function() {
     var requiredFields = {
       'goal':              ['type', 'minute', 'datetime', 'position', 'text'],
       'penalty':           ['type', 'minute', 'datetime', 'position', 'text'],
+      'replacement':       ['type', 'minute', 'datetime', 'position', 'text-out', 'text-in'],
       'penalty-goal':      ['type', 'datetime', 'position', 'text'],
       'no-penalty-goal':   ['type', 'datetime', 'position', 'text'],
       'foul-yellow':       ['type', 'minute', 'datetime', 'position', 'text'],
@@ -448,7 +457,7 @@ $(document).ready(function() {
 
     var hideEventForm = function() {
       matchEventFormEl.slideUp('fast', function() {
-        $(this).removeClass('hidden');
+        $(this).removeClass('hidden').find('input[type=text]').val('');
       });
     };
 
@@ -502,6 +511,7 @@ $(document).ready(function() {
           (indexes.kickOffIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 0 && indexes.finalWhistleIndexes.length === 0)
          ) {
         matchEventButtons.filter('[data-match-event=half-time-break]').removeProp('disabled');
+        matchEventButtons.filter('[data-match-event=break], [data-match-event=continuation]').removeProp('disabled');
       } else if (
           (indexes.kickOffIndexes.length === 2 && indexes.halfTimeBreakIndexes.length === 1 && indexes.finalWhistleIndexes.length === 0)
          ) {
@@ -519,6 +529,7 @@ $(document).ready(function() {
         matchEventButtons.filter('[data-match-event=break]').removeProp('disabled');
         matchEventButtons.filter('[data-match-event=goal]').removeProp('disabled');
         matchEventButtons.filter('[data-match-event=penalty]').removeProp('disabled');
+        matchEventButtons.filter('[data-match-event=replacement]').removeProp('disabled');
         matchEventButtons.filter('[data-match-event=foul-yellow]').removeProp('disabled');
         matchEventButtons.filter('[data-match-event=foul-yellow-red]').removeProp('disabled');
         matchEventButtons.filter('[data-match-event=foul-red]').removeProp('disabled');
@@ -549,7 +560,6 @@ $(document).ready(function() {
           html(matchStateMethods.translate('continuation'));
       } else {
         matchEventButtons.filter('[data-match-event=break]').
-          removeProp('disabled').
           data('match-event', 'break').
           data('match-event-position', 'top').
           html(matchStateMethods.breakEventButtonTranslation());
@@ -653,6 +663,7 @@ $(document).ready(function() {
         'half-time-break': {"type":"half-time-break","event":matchStateMethods.translate('half-time-break'),"text":moment().format('LT') + "<br />" + matchStateMethods.translate('match-score') + ": " + matchStateMethods.matchScore(),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
         'goal': showEventForm, 
         'penalty': showEventForm, 
+        'replacement': showEventForm, 
         'penalty-goal': showEventForm, 
         'no-penalty-goal': showEventForm, 
         'foul-yellow': showEventForm, 
@@ -727,6 +738,7 @@ $(document).ready(function() {
         matchEventsEl.data('match-events', matchEvents);
         matchEventsRenderer.init();
         buttonSwitcher(matchEvents, decidingGame);
+        //hideEventForm();
       });
 
 

@@ -18,7 +18,7 @@
           <div class="btn-group js-standard-match-event-buttons" role="group" aria-label="time line controls">
             <button type="button" class="btn btn-default with-example" data-match-event="kick-off">Kick-Off</button>
             <button type="button" class="btn btn-default with-example" data-match-event="half-time-break" data-match-event-position="top" disabled="disabled">Half-Time-Break</button>
-            <button type="button" class="btn btn-default with-example" data-match-event="break" data-match-event-position="top" disabled="disabled">Break<br /><small>(e.g. Wether)</small></button>
+            <button type="button" class="btn btn-default with-example" data-match-event="break" data-match-event-position="top" disabled="disabled">Break<br /><small>(e.g. Weather)</small></button>
             <button type="button" class="btn btn-default with-example" data-match-event="final-whistle" data-match-event-position="bottom" disabled="disabled">Final Whistle</button>
           </div>
           <div class="btn-group js-deciding-game-buttons hidden" role="group" aria-label="time line controls">
@@ -46,6 +46,7 @@
           <div class="btn-group" role="group" aria-label="time line controls">
             <button type="button" class="btn btn-default" data-match-event="goal" data-match-event-position="left" disabled="disabled">Goal</button>
             <button type="button" class="btn btn-default" data-match-event="penalty" data-match-event-position="left" disabled="disabled">Penalty</button>
+            <button type="button" class="btn btn-default" data-match-event="replacement" data-match-event-position="left" disabled="disabled">Replacement</button>
           </div>
           <div class="btn-group" role="group" aria-label="time line controls">
             <button type="button" class="btn btn-default" data-match-event="foul-yellow" data-match-event-position="left" disabled="disabled"><span class="foul-card yellow"></button>
@@ -58,6 +59,7 @@
           <div class="btn-group" role="group" aria-label="time line controls">
             <button type="button" class="btn btn-default" data-match-event="goal" data-match-event-position="right" disabled="disabled">Goal</button>
             <button type="button" class="btn btn-default" data-match-event="penalty" data-match-event-position="right" disabled="disabled">Penalty</button>
+            <button type="button" class="btn btn-default" data-match-event="replacement" data-match-event-position="right" disabled="disabled">Replacement</button>
           </div>
           <div class="btn-group" role="group" aria-label="time line controls">
             <button type="button" class="btn btn-default" data-match-event="foul-yellow" data-match-event-position="right" disabled="disabled"><span class="foul-card yellow"></button>
@@ -79,11 +81,19 @@
           </div>
           <div class="form-group hidden">
             <label for="input-minute">Event</label> 
-            <input type="text" class="form-control" name="event" placeholder="e.g. Karl Heinz (4)" />
+            <input type="text" class="form-control" name="event" placeholder="e.g. Bob (4)" />
           </div>
           <div class="form-group hidden">
             <label for="input-minute">Text</label> 
-            <input type="text" class="form-control" name="text" placeholder="e.g. Karl Heinz (4)" />
+            <input type="text" class="form-control" name="text" placeholder="e.g. Bob (4)" />
+          </div>
+          <div class="form-group hidden">
+            <label for="input-minute">Out</label> 
+            <input type="text" class="form-control" name="text-out" placeholder="e.g. Bob (4)" />
+          </div>
+          <div class="form-group hidden">
+            <label for="input-minute">In</label> 
+            <input type="text" class="form-control" name="text-in" placeholder="e.g. Richard (14)" />
           </div>
           <div>
             <input type="submit" class="btn btn-primary" value="Save" />
@@ -107,9 +117,10 @@
         &quot;foul-yellow-red&quot;:&quot;Yellow-Red Card&quot;,
         &quot;foul-red&quot;:&quot;Red Card&quot;,
         &quot;delete-latest-element&quot;:&quot;Delete Latest Element&quot;,
-        &quot;wether&quot;:&quot;Wether&quot;,
+        &quot;weather&quot;:&quot;Weather&quot;,
         &quot;match-score&quot;:&quot;Match Score&quot;,
-        &quot;final-score&quot;:&quot;Final Score&quot;
+        &quot;final-score&quot;:&quot;Final Score&quot;,
+        &quot;replacement&quot;:&quot;Replacement&quot;
       }">
         <span class="timeline-bar timeline-center"> 
           <span class="timeline-bar-fill"></span>

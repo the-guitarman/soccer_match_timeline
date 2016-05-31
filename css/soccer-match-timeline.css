@@ -103,6 +103,9 @@ body .row {
 	text-align: right;
 	float: left;
 }
+.position-left img.replacement {
+	transform: rotate(180deg);
+}
 .position-right .timeline-content {
 	text-align: left;
 	float: right;
