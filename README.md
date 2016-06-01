@@ -21,6 +21,21 @@ It's a subproject of my [club homepage](https://github.com/the-guitarman/club_ho
 
 To use the timeline creator remove the example data tag (`<script src="lib/example-data.js"></script>`) at first.
 
+## Match Character
+
+If your match may be undecided after 90 minutes and then it would need some extra time and a penalty shoot-out so set the `data-match-character` attribute of the `match-timeline` element to `deciding-game` within the `index.html` file.
+
+## Languages
+
+At the moment there are two languages:
+
+- `en`: English (default)
+- `de`: German
+
+To select a language set the `data-language` attribute of the `match-timeline` element within the `index.html` file.
+
+Feel free to add more translations.
+
 ## License
 
 This project has a dual license.

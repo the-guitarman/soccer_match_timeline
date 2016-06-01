@@ -15,7 +15,9 @@ $(document).ready(function() {
     },
 
     breakEventButtonTranslation: function() {
-      return matchStateMethods.translate('break') + '<br /><small>(e.g. ' + matchStateMethods.translate('weather') + ')</small>';
+      var abbreviation = matchStateMethods.translate('for-example-abbr');
+      return matchStateMethods.translate('break') + '<br />' + 
+        '<small>(<abbr title="' + abbreviation[1] + '">' + abbreviation[0] + '</abbr> ' + matchStateMethods.translate('weather') + ')</small>';
     },
 
     finalEventIndexes: function(allMatchEvents) {
