@@ -177,7 +177,12 @@ $(document).ready(function() {
           if (_.isEmpty(translation) === true) {
             translation = matchStateMethods.translate(matchEvent);
           }
-          button.html(translation);
+          var subElement = button.find('img, span');
+          if (subElement.length > 0) {
+            button.attr('title', translation);
+          } else {
+            button.html(translation);
+          }
         }
       });
     };
