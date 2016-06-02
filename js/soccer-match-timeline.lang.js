@@ -45,10 +45,13 @@ $(document).ready(function() {
 		}	
 	};
 
-	var language = $('.js-match-events').data('language');
-	var data = translations[language];
-    if (_.isEmpty(data)) {
-    	data = translations['en'];
-    }
-    $('.js-match-events').data('translations', data);
+	var matchTimeline = $('#match-timeline');
+	if (matchTimeline.length > 0) {
+		var language = matchTimeline.data('language');
+		var data = translations[language];
+	    if (_.isEmpty(data)) {
+	    	data = translations['en'];
+	    }
+	    matchTimeline.data('translations', data);
+	}
 });
