@@ -7,9 +7,9 @@ $(document).ready(function() {
     translations: matchEventsEl.data('translations'),
 
     translate: function(text) {
-      var ret = matchStateMethods.translations[text];
-      if (_.isEmpty(ret) === true) {
-        ret = '';
+      var ret = '';
+      if (!_.isEmpty(matchStateMethods.translations) && !_.isEmpty(matchStateMethods.translations[text])) {
+        ret = matchStateMethods.translations[text];
       }
       return ret;
     },
