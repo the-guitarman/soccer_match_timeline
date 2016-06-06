@@ -78,5 +78,4 @@ For commercial usage please contact me at first.
 
 ## TODOs
 
-- fire javascript event for new match event
 - a goal could be an own goal
