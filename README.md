@@ -25,6 +25,36 @@ To use the timeline creator remove the example data tag (`<script src="lib/examp
 
 If your match may be undecided after 90 minutes and then it would need some extra time and a penalty shoot-out so set the `data-match-character` attribute of the `match-timeline` element to `deciding-game` within the `index.html` file.
 
+## Events
+
+There are three events fired for the `match-timeline` element while adding a new match event.
+
+```
+$('#match-timeline').on('match-event:beforeAdd', function(event, newMatchEvent, allMatchEvents){
+  console.log('match-event:added', event, newMatchEvent, allMatchEvents);
+});
+$('#match-timeline').on('match-event:add', function(event, matchEvent){
+  console.log('match-event:added', event, matchEvent);
+});
+$('#match-timeline').on('match-event:afterAdd', function(event, newMatchEvent, allMatchEvents){
+  console.log('match-event:added', event, newMatchEvent, allMatchEvents);
+});
+```
+
+There are three events fired for the `match-timeline` element while removing the newest match event.
+
+```
+$('#match-timeline').on('match-event:beforeRemove', function(event, oldMatchEvent, allMatchEvents){
+  console.log('match-event:removed', event, oldMatchEvent, allMatchEvents);
+});
+$('#match-timeline').on('match-event:remove', function(event, removedMatchEventIndex){
+  console.log('match-event:removed', event, removedMatchEventIndex);
+});
+$('#match-timeline').on('match-event:afterRemove', function(event, oldMatchEvent, allMatchEvents){
+  console.log('match-event:removed', event, oldMatchEvent, allMatchEvents);
+});
+```
+
 ## Languages
 
 At the moment there are two languages:
@@ -45,3 +75,8 @@ This package is licensed under the **LGPL 3.0**. Do whatever you want with it, b
 For commercial usage please contact me at first.
 
 *Note:* Everything may break at every time.
+
+## TODOs
+
+- fire javascript event for new match event
+- a goal could be an own goal

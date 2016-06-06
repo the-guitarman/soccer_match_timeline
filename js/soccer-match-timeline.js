@@ -463,9 +463,11 @@ $(document).ready(function() {
     };
 
     var hideEventForm = function() {
-      matchEventFormEl.slideUp('fast', function() {
-        $(this).removeClass('hidden').find('input[type=text]').val('');
-      });
+      if (matchEventFormEl.is(':visible')) {
+        matchEventFormEl.slideUp('fast', function() {
+          $(this).removeClass('hidden').find('input[type=text]').val('');
+        });
+      }
     };
 
     var showEventForm = function(type, position, currentMinute) {
@@ -543,7 +545,8 @@ $(document).ready(function() {
       }
     };
 
-    var buttonSwitcher = function(allMatchEvents, decidingGame) {
+    var buttonSwitcher = function(decidingGame) {
+      var allMatchEvents = matchEventsEl.data('match-events') || [];
       var lastMatchEvent = allMatchEvents[(allMatchEvents.length - 1)];
       var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
 
@@ -662,8 +665,9 @@ $(document).ready(function() {
       return ret;
     };
 
-    var addEventOrShowEventForm = function(allMatchEvents, type, position) {
-      var currentMinute = calculateMinute(allMatchEvents, type);
+    var addEventOrShowEventForm = function(type, position) {
+      var allMatchEvents = matchEventsEl.data('match-events') || [];
+      var currentMinute  = calculateMinute(allMatchEvents, type);
       var events = {
         'kick-off': {"type":"kick-off","event":matchStateMethods.translate('kick-off'),"text":moment().format('LT'),"minute":currentMinute,"datetime":moment().toISOString(),"position":"bottom"},
         'final-whistle': {"type":"final-whistle","event":matchStateMethods.translate('final-whistle'),"text":moment().format('LT') + "<br />" + matchStateMethods.translate('final-score') + ": " + matchStateMethods.matchScore(),"minute":currentMinute,"datetime":moment().toISOString(),"position":"top"},
@@ -688,7 +692,7 @@ $(document).ready(function() {
         }
       }
       if (typeof(ret) === 'object') {
-        allMatchEvents.push(ret);
+        matchEventsEl.trigger('match-event:add', ret);
       } else if (typeof(ret) === 'function') {
         ret(type, position, currentMinute);
       }
@@ -731,21 +735,16 @@ $(document).ready(function() {
       // match event button event
       $('.js-standard-match-event-buttons button, .js-deciding-game-buttons button, .js-penalty-shoot-out-event-buttons button').click(function() {
         var button = $(this);
-        var matchEvents = matchEventsEl.data('match-events') || [];
-        var newMatchEvents = addEventOrShowEventForm(matchEvents, button.data('match-event'), button.data('match-event-position'));
-        matchEventsEl.data('match-events', newMatchEvents);
-        matchEventsRenderer.init();
-        buttonSwitcher(newMatchEvents, decidingGame);
+        addEventOrShowEventForm(button.data('match-event'), button.data('match-event-position'));
+        buttonSwitcher(decidingGame);
       });
 
       // close button event to delete the last match event
       $(document).on('click', '.js-match-events-timeline button.close', function() {
-        var matchEvents = matchEventsEl.data('match-events') || [];
-        matchEvents.splice(parseInt($(this).data('event-index')), 1);
-        matchEventsEl.data('match-events', matchEvents);
-        matchEventsRenderer.init();
-        buttonSwitcher(matchEvents, decidingGame);
-        //hideEventForm();
+        var removedElementIndex = parseInt($(this).data('event-index'));
+        matchEventsEl.trigger('match-event:remove', removedElementIndex);
+        buttonSwitcher(decidingGame);
+        hideEventForm();
       });
 
 
@@ -763,11 +762,8 @@ $(document).ready(function() {
         e.preventDefault();
         var eventOrFalse = submitMatchEvent();
         if (eventOrFalse != false) {
-          var matchEvents = matchEventsEl.data('match-events') || [];
-          matchEvents.push(eventOrFalse);
-          matchEventsEl.data('match-events', matchEvents);
-          matchEventsRenderer.init();
-          buttonSwitcher(matchEvents, decidingGame);
+          matchEventsEl.trigger('match-event:add', eventOrFalse);
+          buttonSwitcher(decidingGame);
           hideEventForm();
         }
         return false;
@@ -778,4 +774,24 @@ $(document).ready(function() {
   })(matchEventsRenderer.matchEventsEl);
 
   matchEventButtonHandler.init();
+
+  $(document)
+    .on('match-event:add', '#match-timeline', function(event, matchEvent) {
+      var self = $(this);
+      var matchEvents = self.data('match-events') || [];
+      self.trigger('match-event:beforeAdd', matchEvent, matchEvents);
+      matchEvents.push(matchEvent);
+      self.data('match-events', matchEvents);
+      matchEventsRenderer.init();
+      self.trigger('match-event:afterAdd', matchEvent, matchEvents);
+    })
+    .on('match-event:remove', '#match-timeline', function(event, removedElementIndex) {
+      var self = $(this);
+      var matchEvents = self.data('match-events') || [];
+      var removedElement = matchEvents.splice(removedElementIndex, 1)[0];
+      self.trigger('match-event:beforeRemove', removedElement, matchEvents);
+      self.data('match-events', matchEvents);
+      matchEventsRenderer.init();
+      self.trigger('match-event:afterRemove', removedElement, matchEvents);
+    });
 });
