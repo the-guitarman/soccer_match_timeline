@@ -30,11 +30,11 @@ If your match may be undecided after 90 minutes and then it would need some extr
 There are three events fired for the `match-timeline` element while adding a new match event.
 
 ```
-$('#match-timeline').on('match-event:beforeAdd', function(event, newMatchEvent, allMatchEvents){
-  console.log('match-event:added', event, newMatchEvent, allMatchEvents);
-});
 $('#match-timeline').on('match-event:add', function(event, matchEvent){
   console.log('match-event:added', event, matchEvent);
+});
+$('#match-timeline').on('match-event:beforeAdd', function(event, newMatchEvent, allMatchEvents){
+  console.log('match-event:added', event, newMatchEvent, allMatchEvents);
 });
 $('#match-timeline').on('match-event:afterAdd', function(event, newMatchEvent, allMatchEvents){
   console.log('match-event:added', event, newMatchEvent, allMatchEvents);
@@ -44,13 +44,13 @@ $('#match-timeline').on('match-event:afterAdd', function(event, newMatchEvent, a
 There are three events fired for the `match-timeline` element while removing the newest match event.
 
 ```
-$('#match-timeline').on('match-event:beforeRemove', function(event, oldMatchEvent, allMatchEvents){
-  console.log('match-event:removed', event, oldMatchEvent, allMatchEvents);
-});
 $('#match-timeline').on('match-event:remove', function(event, removedMatchEventIndex){
   console.log('match-event:removed', event, removedMatchEventIndex);
 });
-$('#match-timeline').on('match-event:afterRemove', function(event, oldMatchEvent, allMatchEvents){
+$('#match-timeline').on('match-event:beforeRemove', function(event, oldMatchEventIndex, oldMatchEvent, allMatchEvents){
+  console.log('match-event:removed', event, oldMatchEvent, allMatchEvents);
+});
+$('#match-timeline').on('match-event:afterRemove', function(event, oldMatchEventIndex, oldMatchEvent, allMatchEvents){
   console.log('match-event:removed', event, oldMatchEvent, allMatchEvents);
 });
 ```

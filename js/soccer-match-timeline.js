@@ -789,9 +789,9 @@ $(document).ready(function() {
       var self = $(this);
       var matchEvents = self.data('match-events') || [];
       var removedElement = matchEvents.splice(removedElementIndex, 1)[0];
-      self.trigger('match-event:beforeRemove', removedElement, matchEvents);
+      self.trigger('match-event:beforeRemove', removedElementIndex, removedElement, matchEvents);
       self.data('match-events', matchEvents);
       matchEventsRenderer.init();
-      self.trigger('match-event:afterRemove', removedElement, matchEvents);
+      self.trigger('match-event:afterRemove', removedElementIndex, removedElement, matchEvents);
     });
 });
