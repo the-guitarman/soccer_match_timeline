@@ -1,3 +1,5 @@
+var matchEventsRenderer     = function(){};
+var matchEventButtonHandler = function(){};
 $(document).ready(function() {
   var matchEventsEl = $('.js-match-events');
 
@@ -338,7 +340,7 @@ $(document).ready(function() {
 
 
 
-  var matchEventsRenderer = (function() {
+  matchEventsRenderer = (function() {
     var matchEventsEl = $('.js-match-events');
 
     var matchEvents = function() {
@@ -439,7 +441,7 @@ $(document).ready(function() {
 
 
 
-  var matchEventButtonHandler = (function(matchEventsEl) {
+  matchEventButtonHandler = (function(matchEventsEl) {
     var matchEventButtons           = $('.js-standard-match-event-buttons button');
     var decidingGameButtons         = $('.js-deciding-game-buttons button');
     var penaltyShootOutEventButtons = $('.js-penalty-shoot-out-event-buttons button');
@@ -743,8 +745,6 @@ $(document).ready(function() {
       $(document).on('click', '.js-match-events-timeline button.close', function() {
         var removedElementIndex = parseInt($(this).data('event-index'));
         matchEventsEl.trigger('match-event:remove', removedElementIndex);
-        buttonSwitcher(decidingGame);
-        hideEventForm();
       });
 
 
@@ -763,14 +763,16 @@ $(document).ready(function() {
         var eventOrFalse = submitMatchEvent();
         if (eventOrFalse != false) {
           matchEventsEl.trigger('match-event:add', eventOrFalse);
-          buttonSwitcher(decidingGame);
-          hideEventForm();
         }
         return false;
       });
     };
 
-    return {init: init};
+    return {
+      init: init,
+      hideEventForm: buttonSwitcher,
+      switchButtons: hideEventForm
+    };
   })(matchEventsRenderer.matchEventsEl);
 
   matchEventButtonHandler.init();
@@ -793,5 +795,13 @@ $(document).ready(function() {
       self.data('match-events', matchEvents);
       matchEventsRenderer.init();
       self.trigger('match-event:afterRemove', removedElementIndex, removedElement, matchEvents);
-    });
+    })
+    .on('match-event:afterAdd', '#match-timeline', function(event, matchEvent, matchEvents) {
+      matchEventButtonHandler.switchButtons();
+      matchEventButtonHandler.hideEventForm();
+    })
+    .on('match-event:afterRemove', '#match-timeline', function(event, removedElementIndex, removedElement, matchEvents) {
+      matchEventButtonHandler.switchButtons();
+      matchEventButtonHandler.hideEventForm();
+    })
 });
