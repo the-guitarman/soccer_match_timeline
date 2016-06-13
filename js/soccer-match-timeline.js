@@ -517,7 +517,7 @@ $(document).ready(function() {
       matchEventFormEl.find('input[name=datetime]').val(moment().toISOString());
       matchEventFormEl.find('.form-group').removeClass('has-error');
       $.each(requiredFields[type], function(index, field) {
-        matchEventFormEl.find('input[name=' + field + ']').parent().removeClass('hidden');
+        matchEventFormEl.find('input[name=' + field + ']').closest('.form-group').removeClass('hidden');
       });
       matchEventFormEl.hide().removeClass('hidden').slideDown('fast', function() {
         matchEventFormEl.find('input:visible').each(function() {
@@ -746,19 +746,19 @@ $(document).ready(function() {
       var type = matchEventFormEl.find('input[name=type]').val().trim();
 
       if (['kick-off', 'half-time-break', 'final-whistle'].indexOf(type) > -1) {
-        matchEventFormEl.find('input[name=event]').parent().removeClass('hidden');
+        matchEventFormEl.find('input[name=event]').closest('.form-group').removeClass('hidden');
       }
 
       var ret = {};
       $.each(requiredFields[type], function(index, field) {
         var fieldEl = matchEventFormEl.find('input[name=' + field + ']');
         if (fieldEl.attr('type') === 'checkbox') {
-          ret[field] = (fieldEl.attr('checked') === 'checked').toString();
+          ret[field] = (fieldEl.prop('checked') || fieldEl.attr('checked') === 'checked').toString();
         } else {
           ret[field] = fieldEl.val();
         }
         if (ret[field].trim() === '' && ['tel', 'text'].indexOf(fieldEl.prop('type')) > -1) {
-          fieldEl.parent().addClass('has-error');
+          fieldEl.closest('.form-group').addClass('has-error');
         }
       });
 
