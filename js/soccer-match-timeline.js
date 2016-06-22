@@ -172,7 +172,7 @@ $(document).ready(function() {
 
     finalWhistleTextAddition: function(allMatchEvents) {
       var ret = '';
-      if (matchStateMethods.isPenaltyShootOutOver(allMatchEvents) === true) {
+      if (matchStateMethods.isPenaltyShootOut(allMatchEvents) === true) {
         ret = " (" + matchStateMethods.translate("after-penalty-shoot-out-abbr") + ")";
       } else if (matchStateMethods.halfTimeNumber(allMatchEvents) === 4) {
         ret = " (" + matchStateMethods.translate("after-extra-time-abbr") + ")";
@@ -561,7 +561,7 @@ $(document).ready(function() {
       }
     };
 
-    var enableStartEndEventButtons = function(indexes, lastMatchEvent) {
+    var enableStartEndEventButtons = function(indexes, decidingGame, lastMatchEvent) {
       if (
           (indexes.kickOffIndexes.length === 0) ||
           (indexes.kickOffIndexes.length === 1 && indexes.halfTimeBreakIndexes.length === 1 && lastMatchEvent.type === 'half-time-break')
@@ -598,6 +598,7 @@ $(document).ready(function() {
     };
 
     var buttonSwitcher = function(decidingGame) {
+      var decidingGame   = detectDecidingGame(matchEventsEl);
       var allMatchEvents = matchEventsEl.data('match-events') || [];
       var lastMatchEvent = allMatchEvents[(allMatchEvents.length - 1)];
       var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
@@ -606,7 +607,7 @@ $(document).ready(function() {
 
       if (allMatchEvents.length === 0 || (!_.isEmpty(lastMatchEvent) && lastMatchEvent.type !== 'quit')) {
         enableDecidingEventButtons(indexes, decidingGame, lastMatchEvent);
-        enableStartEndEventButtons(indexes, lastMatchEvent);
+        enableStartEndEventButtons(indexes, decidingGame, lastMatchEvent);
         enableMatchEventButtons(indexes);
         switchDecidingGameButtonsVisibility(decidingGame);
         breakContinuationButtonSwitch(allMatchEvents);
@@ -795,13 +796,11 @@ $(document).ready(function() {
     };
 
     var init = function() {
-      var decidingGame = detectDecidingGame(matchEventsEl);
-
       // match event button event
       $('.js-standard-match-event-buttons button, .js-deciding-game-buttons button, .js-penalty-shoot-out-event-buttons button').click(function() {
         var button = $(this);
         addEventOrShowEventForm(button.data('match-event'), button.data('match-event-position'));
-        buttonSwitcher(decidingGame);
+        buttonSwitcher();
       });
 
       // close button event to delete the last match event
