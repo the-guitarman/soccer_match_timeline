@@ -33,7 +33,7 @@ $(document).ready(function() {
 
 			"own-goal-abbr"			  : "Own Goal",
 			"after-extra-time-abbr"   : "AET",
-			"after-penalty-shoot-out" : "APS"
+			"after-penalty-shoot-out-abbr" : "APS"
 
 		},
 
@@ -70,7 +70,7 @@ $(document).ready(function() {
 
 			"own-goal-abbr"			  : "ET",
 			"after-extra-time-abbr"   : "n.V.",
-			"after-penalty-shoot-out" : "n.E."
+			"after-penalty-shoot-out-abbr" : "n.E."
 		}	
 	};
 
