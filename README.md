@@ -75,7 +75,3 @@ This package is licensed under the **LGPL 3.0**. Do whatever you want with it, b
 For commercial usage please contact me at first.
 
 *Note:* Everything may break at every time.
-
-## TODO
-
-- [ ] detect penalty shoot-out is over and add final-whistle event automatically 
