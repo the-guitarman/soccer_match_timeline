@@ -74,7 +74,7 @@ $(document).ready(function() {
 		}	
 	};
 
-	var matchTimeline = $('#match-timeline');
+	var matchTimeline = $(matchEventsElSelector);
 	if (matchTimeline.length > 0) {
 		var language = matchTimeline.data('language');
 		var data = translations[language];
