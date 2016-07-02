@@ -1,9 +1,10 @@
-var matchStateMethods = {};
+var matchStateMethods       = {};
 var matchEventsRenderer     = function(){};
 var matchEventButtonHandler = function(){};
-$(document).ready(function() {
-  var matchEventsEl = $('.js-match-events');
+var matchEventsElSelector   = '#match-timeline';
+var matchEventsEl           = $(matchEventsElSelector);
 
+$(document).ready(function() {
   matchStateMethods = {
     translations: matchEventsEl.data('translations'),
 
@@ -105,22 +106,55 @@ $(document).ready(function() {
       return parseInt(score[0]) === parseInt(score[1]);
     },
 
-    isPenaltyShootOutOver: function(allMatchEvents) {
-      var ret = false;
-      var penaltyShootOutIndex  = _.findLastIndex(allMatchEvents, {type: 'penalty-shoot-out'});
-      var lastFinalWhistleIndex = _.findLastIndex(allMatchEvents, {type: 'final-whistle'});
-      if (penaltyShootOutIndex > -1 && lastFinalWhistleIndex > penaltyShootOutIndex) {
-        ret = true;
-      }
-      return ret;
-    },
-
     isPenaltyShootOut: function(allMatchEvents) {
       var ret = false;
       var penaltyShootOutIndex  = _.findLastIndex(allMatchEvents, {type: 'penalty-shoot-out'});
       var lastFinalWhistleIndex = _.findLastIndex(allMatchEvents, {type: 'final-whistle'});
       if (penaltyShootOutIndex > -1 && lastFinalWhistleIndex < penaltyShootOutIndex) {
         ret = true;
+      }
+      return ret;
+    },
+
+    countPenaltyShootOutGoalsAndAttemptsOnly: function(allMatchEvents) {
+      var score    = "0:0";
+      var attempts = "0:0";
+      var finalWhistleCount = 0;
+      $.each(allMatchEvents, function(index, matchEvent) {
+        if (matchEvent.type === 'final-whistle') {
+          finalWhistleCount++;
+        } else if (finalWhistleCount >= 2) {
+          if (matchStateMethods.isGoalEvent(matchEvent) === true) {
+            score = matchStateMethods.addGoalToScore(matchEvent, score);
+          }
+          attempts = matchStateMethods.addGoalToScore(matchEvent, attempts);
+        }
+      });
+      return {score: score, attempts: attempts};
+    },
+
+    isPenaltyShootOutOver: function(allMatchEvents) {
+      var ret = false;
+      var firstXAttempts = 5;
+      var indexes = matchStateMethods.finalEventIndexes(allMatchEvents);
+      if (indexes.finalWhistleIndexes.length === 3) {
+        ret = true;
+      } else if (matchStateMethods.isPenaltyShootOut(allMatchEvents) === true) {
+        var goalsAndAttempts = matchStateMethods.countPenaltyShootOutGoalsAndAttemptsOnly(allMatchEvents);
+        var goals    = _.map(goalsAndAttempts['score'].split(':'), function(number){return parseInt(number);});
+        var attempts = _.map(goalsAndAttempts['attempts'].split(':'), function(number){return parseInt(number);});
+        ret = 
+          _.all(attempts, function(el) {return el >= firstXAttempts;}) === true && 
+          _.uniq(attempts).length === 1 && 
+          _.uniq(goals).length > 1;
+        if (ret === false) {
+          var minimumGoals      = _.min(goals);
+          var minimumGoalsIndex = _.findIndex(goals, function(goals){ return goals === minimumGoals; });
+          var maximumGoals      = _.max(goals);
+          var maximumGoalsIndex = Math.abs(minimumGoalsIndex - 1);
+          ret = maximumGoals - minimumGoals > firstXAttempts - attempts[minimumGoalsIndex];
+          console.log(goalsAndAttempts['score'] + ", " + goalsAndAttempts['attempts'] + ", " + (maximumGoals - minimumGoals) + " > " + (firstXAttempts - attempts[minimumGoalsIndex]) + " -> " + ret);
+        }
       }
       return ret;
     },
@@ -152,19 +186,27 @@ $(document).ready(function() {
       return matchEventsEl.data('match-score');
     },
 
+    isGoalEvent: function(matchEvent) {
+      return ['goal', 'penalty', 'penalty-goal'].indexOf(matchEvent.type) > -1;
+    },
+
+    addGoalToScore: function(matchEvent, score) {
+      score = score.split(':');
+      var scorePositions = ['left', 'right'];
+      var scoreIndex = null;
+      if (matchEvent['own-goal'] === 'true') {
+        scoreIndex = _.findIndex(scorePositions, function(el) { return el !== matchEvent.position; });
+      } else {
+        scoreIndex = _.findIndex(scorePositions, function(el) { return el === matchEvent.position; });
+      }
+      score[scoreIndex] = parseInt(score[scoreIndex]) + 1;
+      return score.join(':');
+    },
+
     countMatchScore: function(matchEvent) {
       var score = matchStateMethods.matchScore();
-      if (['goal', 'penalty', 'penalty-goal'].indexOf(matchEvent.type) > -1) {
-        score = score.split(':');
-        var scorePositions = ['left', 'right'];
-        var scoreIndex = null;
-        if (matchEvent['own-goal'] === 'true') {
-          scoreIndex = _.findIndex(scorePositions, function(el) { return el !== matchEvent.position; });
-        } else {
-          scoreIndex = _.findIndex(scorePositions, function(el) { return el === matchEvent.position; });
-        }
-        score[scoreIndex] = parseInt(score[scoreIndex]) + 1;
-        score = score.join(':');
+      if (matchStateMethods.isGoalEvent(matchEvent) === true) {
+        score = matchStateMethods.addGoalToScore(matchEvent, score);
         matchEventsEl.data('match-score', score);
       }
       return score;
@@ -238,8 +280,6 @@ $(document).ready(function() {
 
 
   var matchEventCreator = (function(){
-    var matchEventsEl = $('.js-match-events');
-
     var minute = function(matchEvent) {
       var ret = '';
       if (['penalty-goal', 'no-penalty-goal'].indexOf(matchEvent.type) > -1) {
@@ -386,8 +426,6 @@ $(document).ready(function() {
 
 
   matchEventsRenderer = (function() {
-    var matchEventsEl = $('.js-match-events');
-
     var matchEvents = function() {
       return matchEventsEl.data('match-events') || [];
     };
@@ -759,6 +797,10 @@ $(document).ready(function() {
       return allMatchEvents;
     };
 
+    var addFinalWhistleEvent = function() {
+      addEventOrShowEventForm('final-whistle', 'top');
+    };
+
     var submitMatchEvent = function() {
       var type = matchEventFormEl.find('input[name=type]').val().trim();
 
@@ -832,10 +874,19 @@ $(document).ready(function() {
 
     return {
       init: init,
-      hideEventForm: buttonSwitcher,
-      switchButtons: hideEventForm
+      hideEventForm: hideEventForm,
+      switchButtons: buttonSwitcher,
+      addFinalWhistleEvent: addFinalWhistleEvent
     };
   })(matchEventsRenderer.matchEventsEl);
 
   matchEventButtonHandler.init();
+
+  $(document)
+    .on('match-event:afterAdd', matchEventsElSelector, function(event, matchEvent, allMatchEvents) {
+      if (matchEvent.type !== 'final-whistle' && matchStateMethods.isPenaltyShootOutOver(allMatchEvents)) {
+        matchEventButtonHandler.addFinalWhistleEvent();
+      }
+    });
+
 });
