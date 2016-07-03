@@ -153,7 +153,6 @@ $(document).ready(function() {
           var maximumGoals      = _.max(goals);
           var maximumGoalsIndex = Math.abs(minimumGoalsIndex - 1);
           ret = maximumGoals - minimumGoals > firstXAttempts - attempts[minimumGoalsIndex];
-          console.log(goalsAndAttempts['score'] + ", " + goalsAndAttempts['attempts'] + ", " + (maximumGoals - minimumGoals) + " > " + (firstXAttempts - attempts[minimumGoalsIndex]) + " -> " + ret);
         }
       }
       return ret;
