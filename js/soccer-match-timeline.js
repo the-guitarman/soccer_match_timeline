@@ -689,7 +689,7 @@ $(document).ready(function() {
         $('.js-standard-match-event-buttons').addClass('hidden');
         $('.js-penalty-shoot-out-event-buttons').removeClass('hidden');
         decidingGameButtonsParent.removeClass('hidden');
-        decidingGameButtons.removeProp('disabled').removeAttr('disabled');
+        decidingGameButtons.filter('[data-match-event=penalty-shoot-out]').removeProp('disabled').removeAttr('disabled');
         penaltyShootOutEventButtons.prop('disabled', 'disabled').attr('disabled', 'disabled');
       } else if (
           decidingGame === true && (
